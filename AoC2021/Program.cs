@@ -15,4 +15,4 @@ static async Task Write(string text)
         await Write(Read("Day>"));
     }
 }
-await Write(Read($"Day (-h for help)>"));
+await Write(Read("Day (-h for help)>"));
