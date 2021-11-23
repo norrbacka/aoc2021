@@ -1,7 +1,7 @@
 ﻿using static System.Console;
 using static System.ReadLine;
 const string EXIT_MSG = "exit";
-static async Task Write(string text = "", int calls = 0) 
+static async Task Write(string text) 
 {  
     WriteLine(text switch
     {
@@ -12,7 +12,7 @@ static async Task Write(string text = "", int calls = 0)
     });
     if(text != EXIT_MSG)
     {
-        await Write(Read("Day>"), ++calls);
+        await Write(Read("Day>"));
     }
 }
 await Write(Read($"Day (-h for help)>"));
