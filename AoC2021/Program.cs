@@ -5,8 +5,8 @@ static async Task Write(string text)
 {  
     WriteLine(text switch
     {
-        "1a" => await Day1.A(),
-        "1b" => await Day1.B(),
+        "1.1" => await Day1.One(),
+        "1.2" => await Day1.Two(),
 
         "test" => await Test.Run(),
         EXIT_MSG => "exiting...",

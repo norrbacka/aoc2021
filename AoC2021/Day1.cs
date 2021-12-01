@@ -1,6 +1,8 @@
 ﻿using LanguageExt;
 using static MoreLinq.Extensions.PairwiseExtension;
 using WinstonPuckett.PipeExtensions;
+using FSharp;
+using Microsoft.FSharp.Collections;
 
 public static class Day1
 {
@@ -10,11 +12,11 @@ public static class Day1
         .Select(i => int.Parse(i))
         .ToListAsync();
 
-    public static async Task<int> A() =>
+    public static async Task<int> One() =>
         (await GetInput())
         .Pipe(CountIncreases);
 
-    public static async Task<int> B() =>
+    public static async Task<int> Two() =>
         (await GetInput())
         .Pipe(ToGroupsOfThree)
         .Pipe(ToSums)
@@ -26,20 +28,10 @@ public static class Day1
         .Pairwise((previous, current) => current > previous ? 1 : 0)
         .Sum();
 
-    public static IEnumerable<IList<int>> ToGroupsOfThree(IList<int> inputs)
-    {
-        List<int> a = new(), b = new(), c = new();
-        int laps = 1;
-        foreach (int i in inputs)
-        {
-            if (laps >= 1) a.Add(i);
-            if (laps >= 2) b.Add(i); 
-            if (laps++ >= 3) c.Add(i);
-            if (a.Count == 3) { yield return a; a.Clear(); }
-            if (b.Count == 3) { yield return b; b.Clear(); }
-            if (c.Count == 3) { yield return c; c.Clear(); }
-        }
-    }
+    public static IEnumerable<IList<int>> ToGroupsOfThree(IList<int> inputs) => 
+        SeqModule
+        .Windowed(3, inputs)
+        .Select(x => x.ToList());
 
     public static IList<int> ToSums(IEnumerable<IList<int>> inputsGrouped) =>
         inputsGrouped
