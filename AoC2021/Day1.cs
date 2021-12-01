@@ -30,15 +30,16 @@ public static class Day1
 
     public static IEnumerable<IList<int>> ToGroupsOfThree(IList<int> inputs)
     {
-        List<int> a = new(), b = new(), c = new(); int laps = 1;
+        List<int> a = new(), b = new(), c = new();
+        int laps = 1;
         foreach (int i in inputs)
         {
             if (laps >= 1) a.Add(i);
             if (laps >= 2) b.Add(i); 
             if (laps++ >= 3) c.Add(i);
-            if (a.Count == 3) { a.Clear(); yield return a; }
-            if (b.Count == 3) { b.Clear(); yield return b; }
-            if (c.Count == 3) { c.Clear(); yield return c; }
+            if (a.Count == 3) { yield return a; a.Clear(); }
+            if (b.Count == 3) { yield return b; b.Clear(); }
+            if (c.Count == 3) { yield return c; c.Clear(); }
         }
     }
 
