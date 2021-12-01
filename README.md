@@ -1,6 +1,6 @@
-﻿# 🎄 Advent of Code 2021 - C# Console Edition 🎄
+﻿# 🎄 Advent of Code 2021 - C# 🎄
 
-Hello there, and welcome to my solutions for Advent of Code 2021. First try with C#, but coded in that language for +10 yrs.
+Hello there, and welcome to my solutions for Advent of Code 2021. Trying to write functional C# code to solve the tasks and save Santa (or whatever the story is this year!).
 
 Enjoy, be safe, be healthy!
 
@@ -10,7 +10,7 @@ Well, something like this:
 dotnet watch I guess?
 
 ## Progression
-:star::star: Day 1 \
+:star::star: [Day 1](/AoC2021/Day1.cs) \
 :x::x: Day 2 \
 :x::x: Day 3 \
 :x::x: Day 4 \
