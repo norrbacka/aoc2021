@@ -10,17 +10,15 @@ public static class Day1
         .Select(i => int.Parse(i))
         .ToListAsync();
 
-    public static async Task<string> A() =>
+    public static async Task<int> A() =>
         (await GetInput())
-        .Pipe(CountIncreases)
-        .Pipe(x => x.ToString());
+        .Pipe(CountIncreases);
 
-    public static async Task<string> B() =>
+    public static async Task<int> B() =>
         (await GetInput())
         .Pipe(ToGroupsOfThree)
         .Pipe(ToSums)
-        .Pipe(CountIncreases)
-        .Pipe(x => x.ToString());
+        .Pipe(CountIncreases);
 
     public static int CountIncreases(IList<int> inputs) => 
         inputs
