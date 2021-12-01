@@ -1,7 +1,6 @@
 ﻿using LanguageExt;
 using static MoreLinq.Extensions.PairwiseExtension;
 using WinstonPuckett.PipeExtensions;
-using FSharp;
 using Microsoft.FSharp.Collections;
 
 public static class Day1
