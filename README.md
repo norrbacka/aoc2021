@@ -10,7 +10,7 @@ Well, something like this:
 dotnet watch I guess?
 
 ## Progression
-:star::star: Day 1 \
+:star::star: [Day 1](/AoC2021/Day1.cs) \
 :x::x: Day 2 \
 :x::x: Day 3 \
 :x::x: Day 4 \
