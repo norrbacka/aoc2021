@@ -1,6 +1,6 @@
 ﻿# 🎄 Advent of Code 2021 - C# 🎄
 
-Hello there, and welcome to my solutions for Advent of Code 2021. Trying to write functional C# code to solve the tasks and save Santa (or whatever this years story is!).
+Hello there, and welcome to my solutions for Advent of Code 2021. Trying to write functional C# code to solve the tasks and save Santa (or whatever the story is this year!).
 
 Enjoy, be safe, be healthy!
 
