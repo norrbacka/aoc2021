@@ -5,6 +5,9 @@ static async Task Write(string text)
 {  
     WriteLine(text switch
     {
+        "1a" => await Day1.A(),
+        "1b" => await Day1.B(),
+
         "test" => await Test.Run(),
         EXIT_MSG => "exiting...",
         "-h" => "Day number and task letter, like 1a, 2b, 15a. 'exit' to quit.",
