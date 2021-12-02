@@ -11,7 +11,7 @@ dotnet watch I guess?
 
 ## Progression
 :star::star: [Day 1](/AoC2021/Day1.cs) \
-:x::x: Day 2 \
+:star::star: [Day 2](/AoC2021/Day2.cs) \
 :x::x: Day 3 \
 :x::x: Day 4 \
 :x::x: Day 5 \

@@ -1,80 +1,37 @@
-﻿using WinstonPuckett.PipeExtensions;
+﻿using static MoreLinq.Extensions.PairwiseExtension;
+using WinstonPuckett.PipeExtensions;
 
 public static class Day2
 {
-    private static async Task<IList<(string Instruction, int Steps)>> GetInput() =>
+    private static async Task<IList<(string Ins, int Unit)>> GetInput() =>
         await Inputs
         .Read("inputs/day2.txt")
-        .Select(text => (Instruction: text.Split(" ")[0].Trim().ToLower(), Steps: int.Parse(text.Split(" ")[1])))
+        .Select(text => (Ins: text.Split(" ")[0].Trim().ToLower(), Unit: int.Parse(text.Split(" ")[1])))
         .ToListAsync();
 
-    public static async Task<int> One()
-    {
-        var positions = await GetInput();
-        var parsed = positions.Select(p =>
-        {
-            var x = p.Instruction switch
-            {
-                "forward" => p.Steps,
-                _ => 0
-            };
-            var y = p.Instruction switch
-            {
-                "down" => p.Steps,
-                "up" => -p.Steps,
-                _ => 0
-            };
-            return (x, y);
-        });
-        int sumed_x = 0, sumed_y = 0;
-        var steps = new List<(int x, int y)>();
-        foreach(var p in parsed)
-        {
-            sumed_x += p.x;
-            sumed_y += p.y;
-            steps.Add((sumed_x, sumed_y));
-        }
-        return sumed_x * sumed_y;
-    }
+    public static async Task<int> One() => 
+        (await GetInput())
+        .Select(i => (
+            x: i.Ins switch { "forward" => i.Unit, _ => 0 },
+            y: i.Ins switch { "down" => i.Unit, "up" => -i.Unit, _ => 0 }
+        ))
+        .Aggregate((p, n) => (
+            x: p.x + n.x, 
+            y: p.y + n.y
+        ))
+        .Pipe(p => p.x * p.y);
 
-    public static async Task<int> Two()
-    {
-        var positions = await GetInput();
-        var parsed = positions.Select(p =>
-        {
-            var x = p.Instruction switch
-            {
-                "forward" => p.Steps,
-                _ => 0
-            };
-            var aim = p.Instruction switch
-            {
-                "down" => p.Steps,
-                "up" => -p.Steps,
-                _ => 0
-            };
-            return (x, aim, change: p);
-        });
-        int sumed_x = 0, sumed_y = 0, sumed_aim = 0;
-        var steps = new List<(int x, int y, int aim)>();
-        foreach (var p in parsed)
-        {
-
-            if (p.change.Instruction == "up")
-            {
-                sumed_aim += p.aim;
-            }
-            if (p.change.Instruction == "down")
-            {
-                sumed_aim += p.aim;
-            }
-            if (p.change.Instruction == "forward")
-            {
-                sumed_x += p.change.Steps;
-                sumed_y += (p.change.Steps * sumed_aim);
-            }
-            steps.Add((sumed_x, sumed_y, sumed_aim));
-        }
-        return sumed_x * sumed_y;
-    }
+    public static async Task<int> Two() =>
+        (await GetInput())
+        .Select(i => (
+            x: i.Ins switch { "forward" => i.Unit, _ => 0 },
+            y: 0,
+            aim: i.Ins switch { "down" => i.Unit, "up" => -i.Unit, _ => 0 }
+        ))
+        .Aggregate((p, n) => (
+            x: p.x + n.x,
+            y: p.y + (n.x * (p.aim + n.aim)),
+            aim: p.aim + n.aim
+        ))
+        .Pipe(p => p.x * p.y);
 }
