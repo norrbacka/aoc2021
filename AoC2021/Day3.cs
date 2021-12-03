@@ -63,15 +63,10 @@ public static class Day3
             ToDecimal(inputs.First()) 
         :
             GetIndice(inputs, index)
-            .Pipe(IsMoreOnesOrEqualNumberOfOnesAndZeros)
-            .Pipe(shouldKeepOnes => shouldKeepOnes ? 
-                    inputs.Where(input => input[index] == keepOnes) : 
-                    inputs.Where(input => !input[index] == keepOnes))
+            .Pipe(GetMostCommonBit)
+            .Pipe(shouldKeepOnes => inputs.Where(input => shouldKeepOnes == input[index] == keepOnes))
             .Pipe(rest => Traverse(rest, keepOnes, index + 1));
     
     private static bool[] GetIndice(IEnumerable<bool[]> inputs, int index) =>
         Flip(inputs).ElementAt(index);
-
-    private static bool IsMoreOnesOrEqualNumberOfOnesAndZeros(bool[] input) => 
-        input.Count(ones => ones) >= input.Count(zeros => !zeros);
 }
