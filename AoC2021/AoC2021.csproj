@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,28 +6,33 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <None Remove="Inputs\day1.txt" />
-    <None Remove="Inputs\day2.txt" />
-    <None Remove="Inputs\day2_test.txt" />
-    <None Remove="Inputs\day3.txt" />
-    <None Remove="Inputs\test.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Inputs\day3.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Inputs\day2.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Inputs\day1.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Inputs\test.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+	<Content Include="Inputs\day25.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day24.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day23.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day22.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day21.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day20.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day19.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day18.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day17.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day16.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day15.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day14.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day13.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day12.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day11.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day10.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day9.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day8.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day7.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day6.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day5.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day4.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+    <Content Include="Inputs\day3.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day2.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day1.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+    <Content Include="Inputs\test.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
   </ItemGroup>
 
   <ItemGroup>

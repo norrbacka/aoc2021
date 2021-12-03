@@ -4,11 +4,6 @@ Hello there, and welcome to my solutions for Advent of Code 2021. Trying to writ
 
 Enjoy, be safe, be healthy!
 
-## How to run my code?
-Well, something like this:
-
-dotnet watch I guess?
-
 ## Progression
 :star::star: [Day 1](/AoC2021/Day1.cs) \
 :star::star: [Day 2](/AoC2021/Day2.cs) \

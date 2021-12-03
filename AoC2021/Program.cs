@@ -14,6 +14,9 @@ static async Task Write(string text)
         "3.1" => await Day3.One(),
         "3.2" => await Day3.Two(),
 
+        "4.1" => await Day4.One(),
+        "4.2" => await Day4.Two(),
+
         "test" => await Test.Run(),
         EXIT_MSG => "exiting...",
         "-h" => "Day number and task letter, like 1a, 2b, 15a. 'exit' to quit.",
