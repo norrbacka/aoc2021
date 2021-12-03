@@ -39,22 +39,72 @@ public static class Day3
         return await Task.Run(() => gammaRate * epsilon);
     }
 
-    public static decimal ToDecimal(byte[] bytes)
+    public static async Task<object> Two()
     {
-        //check that it is even possible to convert the array
-        if (bytes.Count() != 16)
-            throw new Exception("A decimal must be created from exactly 16 bytes");
-        //make an array to convert back to int32's
-        Int32[] bits = new Int32[4];
-        for (int i = 0; i <= 15; i += 4)
-        {
-            //convert every 4 bytes into an int32
-            bits[i / 4] = BitConverter.ToInt32(bytes, i);
-        }
-        //Use the decimal's new constructor to
-        //create an instance of decimal
-        return new decimal(bits);
+        var inputs = await GetInput();
+
+        var ogr = GetOgr(inputs, 0);
+        var co2sr = GetC02sr(inputs, 0);
+        return await Task.Run(() => ogr*co2sr);
     }
-    public static async Task<int> Two() => 2;
-        //(await GetInput());
+
+    public static decimal GetOgr(IEnumerable<bool[]> inputs, int index)
+    {
+        if(inputs.Count() == 1)
+        {
+            var byteString = string.Join("", inputs.First().Select(i => i ? "1" : "0"));
+            var ogr = Convert.ToInt32(byteString, 2);
+            return ogr;
+        }
+
+        var d = inputs.Select(input => input[index]);
+        var zeros = d.Where(d => !d);
+        var ones = d.Where(d => d);
+        var moreOnes = ones.Count() >= zeros.Count();
+        if (moreOnes)
+        {
+            var toKeep = inputs.Where(input => input[index]);
+            return GetOgr(toKeep, index + 1);
+        }
+
+        var lessOnes = ones.Count() < zeros.Count();
+        if (lessOnes)
+        {
+            var toKeep = inputs.Where(input => !input[index]);
+            return GetOgr(toKeep, index + 1);
+        }
+
+        throw new InvalidOperationException();
+    }
+
+    public static decimal GetC02sr(IEnumerable<bool[]> inputs, int index)
+    {
+        if (inputs.Count() == 1)
+        {
+            var byteString = string.Join("", inputs.First().Select(i => i ? "1" : "0"));
+            var ogr = Convert.ToInt32(byteString, 2);
+            return ogr;
+        }
+
+        var d = inputs.Select(input => input[index]);
+        var zeros = d.Where(d => !d);
+        var ones = d.Where(d => d);
+
+        var moreOnes = ones.Count() >= zeros.Count();
+        if (moreOnes)
+        {
+            var zerosToKeep = inputs.Where(input => !input[index]);
+            return GetC02sr(zerosToKeep, index + 1);
+        }
+
+        var lessOnes = ones.Count() < zeros.Count();
+        if (lessOnes)
+        {
+            var onesToKeep = inputs.Where(input => input[index]);
+            return GetC02sr(onesToKeep, index + 1);
+        }
+
+        throw new InvalidOperationException();
+    }
+
 }
