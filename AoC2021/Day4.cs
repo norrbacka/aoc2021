@@ -42,7 +42,7 @@ public static class Day4
     static bool IsWinner(int[][] board, List<int> drawnNumbers) =>
         board.Any(row => row.All(n => drawnNumbers.Contains(n)));
 
-    private static int GetUnmarkedNumbersSum(int[][] board, List<int> drawnNumbers) =>
+    static int GetUnmarkedNumbersSum(int[][] board, List<int> drawnNumbers) =>
         board.SelectMany(b => b.Where(n => !drawnNumbers.Contains(n))).Sum();
 
     static Option<int> MaybeComputeScore(int[][] board, List<int> drawnNumbers) =>
@@ -69,7 +69,7 @@ public static class Day4
         return winners;
     }
 
-    private static async Task<List<(int[][] board, int score)>> GetWinners() => 
+    static async Task<List<(int[][] board, int score)>> GetWinners() => 
         (await GetInput())
         .Pipe(GetGame)
         .Pipe((n, b) => GetWinners(n, b));
