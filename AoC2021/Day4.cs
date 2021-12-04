@@ -87,5 +87,25 @@ public static class Day4
         }
         return "No winner";
     }
-    public static async Task<object> Two() => "bar";
+
+    public static async Task<object> Two() 
+    {
+        var input = await GetInput();
+        var (numbers, boards) = GetGame(input);
+        var winners = new List<(int[][] board, int score)>();
+
+        foreach (var drawnNumbers in GetDrawnNumbers(numbers))
+        {
+            foreach (var board in boards) //boards.Where(b => winners.Any(w => w.board == b)))
+            {
+                var score = ComputeScore(board, drawnNumbers);
+                if (score != -1 && !winners.Any(w => w.board == board))
+                {
+                    winners.Add((board, score));
+                }
+            }
+        }
+
+        return winners.Last().score;
+    }
 }
