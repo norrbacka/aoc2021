@@ -29,28 +29,36 @@ public static class Day4
         Enumerable.Range(0, board.First().Count())
         .Select(i => board.Select(o => o[i]).ToArray()).ToArray();
 
-    static IEnumerable<List<int>> GetDrawnNumbers(int[] numbers)
-    {
-        var drawn = new List<int>();
-        foreach (var number in numbers)
-        {
-            drawn.Add(number);
-            yield return drawn;
-        }
-    }
+    static IEnumerable<IEnumerable<int>> GetDrawnNumbersRecur(IEnumerable<int> numbers, IEnumerable<IEnumerable<int>> sequence) =>
+        numbers.Any() ?
+            numbers
+            .Pipe(n => (remaining: n.Skip(1), toAdd: numbers.Take(1)))
+            .Pipe((remaining, toAdd) => 
+            (
+                remaining,
+                MoreEnumerable.Append(sequence, (sequence.LastOrDefault() ?? Array.Empty<int>()).Append(toAdd))
+            ))
+            .Pipe((remaining, sequence) => GetDrawnNumbersRecur(remaining, sequence)) 
+        :
+            sequence;
 
-    static bool IsWinner(int[][] board, List<int> drawnNumbers) =>
+    static bool IsWinner(int[][] board, IEnumerable<int> drawnNumbers) =>
         board.Any(row => row.All(n => drawnNumbers.Contains(n)));
 
-    static int GetUnmarkedNumbersSum(int[][] board, List<int> drawnNumbers) =>
+    static int GetUnmarkedNumbersSum(int[][] board, IEnumerable<int> drawnNumbers) =>
         board.SelectMany(b => b.Where(n => !drawnNumbers.Contains(n))).Sum();
 
-    static Option<int> MaybeComputeScore(int[][] board, List<int> drawnNumbers) =>
+    static Option<int> MaybeComputeScore(int[][] board, IEnumerable<int> drawnNumbers) =>
         IsWinner(board, drawnNumbers) ? drawnNumbers.Last() * GetUnmarkedNumbersSum(board, drawnNumbers) : Option<int>.None;
 
-    static Option<int> MaybeGetScore(int[][] board, List<int> drawnNumbers) =>
-        MaybeComputeScore(board, drawnNumbers).Match(s => s, () =>
-        MaybeComputeScore(Flip(board), drawnNumbers));
+    static Option<int> MaybeGetScore(int[][] board, IEnumerable<int> drawnNumbers) =>
+        MaybeComputeScore(board, drawnNumbers)
+        .Match(
+            scoreForBoardIfAnyRowIsWinner => scoreForBoardIfAnyRowIsWinner, 
+            () => MaybeComputeScore(Flip(board), drawnNumbers)
+            .Match(
+                scoreForBoardIfAnyColumnIsWinner => scoreForBoardIfAnyColumnIsWinner, 
+                () => Option<int>.None)); //NOT A WINNER!
 
     static IEnumerable<int[][]> GetRemainingBoards(IEnumerable<int[][]> boards, IEnumerable<(int[][] board, int score)> winners) =>
         boards.Where(b => !winners.Any(w => w.board == b));
@@ -58,7 +66,7 @@ public static class Day4
     static List<(int[][] board, int score)> GetWinners(int[] numbers, int[][][] boards)
     {
         var winners = new List<(int[][] board, int score)>();
-        foreach (var drawnNumbers in GetDrawnNumbers(numbers))
+        foreach (var drawnNumbers in GetDrawnNumbersRecur(numbers, Array.Empty<int[]>()))
         {
             foreach (var board in GetRemainingBoards(boards, winners))
             {
