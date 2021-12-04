@@ -10,33 +10,24 @@ public static class Day4
         .Select(text => text)
         .ToListAsync();
 
-    static (int[] Numbers, int[][][] Boards) GetGame(List<string> input)
-    {
-        var numbers = input[0].Split(",").Select(x => int.Parse(x)).ToArray();
-        var boards = input
-            .Skip(2)
-            .Batch(6)
-            .Select(board =>
-                board
-                .Take(5)
-                .Select(boardRow =>
-                    boardRow
-                    .Split(" ")
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(x => int.Parse(x))
-                    .ToArray())
-                .ToArray())
-            .ToArray();
-        return (numbers, boards);
-    }
+    static (int[] Numbers, int[][][] Boards) GetGame(List<string> input) => (
+        input[0].Split(",").Select(x => int.Parse(x)).ToArray(),
+        input
+        .Skip(2)
+        .Batch(6)
+        .Select(board =>
+            board
+            .Take(5)
+            .Select(boardRow =>
+                boardRow
+                .Split(" ")
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(x => int.Parse(x))
+        .ToArray()).ToArray()).ToArray());
 
     static int[][] Flip(int[][] board) =>
         Enumerable.Range(0, board.First().Count())
-        .Select(i =>
-            board
-            .Select(o => o[i])
-            .ToArray())
-        .ToArray();
+        .Select(i => board.Select(o => o[i]).ToArray()).ToArray();
 
     static IEnumerable<List<int>> GetDrawnNumbers(int[] numbers)
     {
