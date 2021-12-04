@@ -1,23 +1,25 @@
-﻿using MoreLinq;
+﻿using LanguageExt;
+using MoreLinq;
+using WinstonPuckett.PipeExtensions;
 
 public static class Day4
 {
-    private static async Task<List<string>> GetInput() =>
+    static async Task<List<string>> GetInput() =>
         await Inputs
         .Read("inputs/day4.txt")
         .Select(text => text)
         .ToListAsync();
 
-    private static (int[] Numbers, int[][][] Boards) GetGame(List<string> input)
+    static (int[] Numbers, int[][][] Boards) GetGame(List<string> input)
     {
         var numbers = input[0].Split(",").Select(x => int.Parse(x)).ToArray();
         var boards = input
             .Skip(2)
             .Batch(6)
-            .Select(board => 
+            .Select(board =>
                 board
                 .Take(5)
-                .Select(boardRow => 
+                .Select(boardRow =>
                     boardRow
                     .Split(" ")
                     .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -28,15 +30,15 @@ public static class Day4
         return (numbers, boards);
     }
 
-    public static int[][] Flip(int[][] board) =>
+    static int[][] Flip(int[][] board) =>
         Enumerable.Range(0, board.First().Count())
-        .Select(i => 
+        .Select(i =>
             board
             .Select(o => o[i])
             .ToArray())
         .ToArray();
 
-    public static IEnumerable<List<int>> GetDrawnNumbers(int[] numbers)
+    static IEnumerable<List<int>> GetDrawnNumbers(int[] numbers)
     {
         var drawn = new List<int>();
         foreach (var number in numbers)
@@ -46,66 +48,42 @@ public static class Day4
         }
     }
 
-    public static int ComputeScore(int[][] board, List<int> drawnNumbers)
+    static bool IsWinner(int[][] board, List<int> drawnNumbers) =>
+        board.Any(row => row.All(n => drawnNumbers.Contains(n)));
+
+    private static int GetUnmarkedNumbersSum(int[][] board, List<int> drawnNumbers) =>
+        board.SelectMany(b => b.Where(n => !drawnNumbers.Contains(n))).Sum();
+
+    static Option<int> MaybeComputeScore(int[][] board, List<int> drawnNumbers) =>
+        IsWinner(board, drawnNumbers) ? drawnNumbers.Last() * GetUnmarkedNumbersSum(board, drawnNumbers) : Option<int>.None;
+
+    static Option<int> MaybeGetScore(int[][] board, List<int> drawnNumbers) =>
+        MaybeComputeScore(board, drawnNumbers).Match(s => s, () =>
+        MaybeComputeScore(Flip(board), drawnNumbers));
+
+    static IEnumerable<int[][]> GetRemainingBoards(IEnumerable<int[][]> boards, IEnumerable<(int[][] board, int score)> winners) =>
+        boards.Where(b => !winners.Any(w => w.board == b));
+
+    static List<(int[][] board, int score)> GetWinners(int[] numbers, int[][][] boards)
     {
-        var horizontal = board;        
-        var isHorizontalWinner = horizontal.Any(h => h.All(n => drawnNumbers.Contains(n)));
-        if (isHorizontalWinner)
-        {
-            var calledNumber = drawnNumbers.Last();
-            var sumOfUnmarked = horizontal.SelectMany(h => h.Where(n => !drawnNumbers.Contains(n))).Sum();
-            return sumOfUnmarked * calledNumber;
-        }
-
-        var vertical = Flip(board);
-        var isVerticalWinner = vertical.Any(v => v.All(n => drawnNumbers.Contains(n)));
-        if (isVerticalWinner)
-        {
-            var calledNumber = drawnNumbers.Last();
-            var sumOfUnmarked = vertical.SelectMany(v => v.Where(n => !drawnNumbers.Contains(n))).Sum();
-            return sumOfUnmarked * calledNumber;
-        }
-
-        return -1;
-    }
-
-    public static async Task<object> One()
-    {
-        var input = await GetInput();
-        var (numbers, boards) = GetGame(input);
-
-        foreach(var drawnNumbers in GetDrawnNumbers(numbers))
-        {
-            foreach(var board in boards)
-            {
-                var score = ComputeScore(board, drawnNumbers);
-                if(score != -1)
-                {
-                    return score;
-                }
-            }
-        }
-        return "No winner";
-    }
-
-    public static async Task<object> Two() 
-    {
-        var input = await GetInput();
-        var (numbers, boards) = GetGame(input);
         var winners = new List<(int[][] board, int score)>();
-
         foreach (var drawnNumbers in GetDrawnNumbers(numbers))
         {
-            foreach (var board in boards) //boards.Where(b => winners.Any(w => w.board == b)))
+            foreach (var board in GetRemainingBoards(boards, winners))
             {
-                var score = ComputeScore(board, drawnNumbers);
-                if (score != -1 && !winners.Any(w => w.board == board))
-                {
-                    winners.Add((board, score));
-                }
+                var score = MaybeGetScore(board, drawnNumbers);
+                score.IfSome(s => { winners.Add((board, s)); });
             }
         }
-
-        return winners.Last().score;
+        return winners;
     }
+
+    private static async Task<List<(int[][] board, int score)>> GetWinners() => 
+        (await GetInput())
+        .Pipe(GetGame)
+        .Pipe((n, b) => GetWinners(n, b));
+
+    public static async Task<object> One() => (await GetWinners()).First().score;
+
+    public static async Task<object> Two() => (await GetWinners()).Last().score;
 }
