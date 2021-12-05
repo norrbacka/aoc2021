@@ -79,5 +79,28 @@
 
 
 
-    public static async Task<object> Two() => "bar";
+    public static async Task<object> Two()
+    {
+        var lineSegments = await GetInput();
+
+        var lines =
+            lineSegments
+            .Select(ls => GetLines(ls).ToArray())
+            .ToArray();
+        var map = GetMap();
+        var linesCoordinates = lines.SelectMany(l => l);
+        foreach (var coordinate in linesCoordinates)
+        {
+            map = UpdateMap(map, coordinate);
+        }
+
+        var overlaps = map.SelectMany(row => row.Select(col => col)).ToLookup(n => n);
+        var howManyMostDangerousPoints =
+            overlaps
+            .Where(o => o.Key >= 2)
+            .Select(o => o.Key)
+            .Sum(k => overlaps[k].Count());
+
+        return howManyMostDangerousPoints;
+    }
 }
