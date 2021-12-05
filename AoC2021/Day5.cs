@@ -47,46 +47,30 @@
         return map;
     }
 
-    public static async Task<object> One()
+    public static async Task<object> GetOverlapsOverTwo(bool onlyHorizontalAndVertical)
     {
         var lineSegments = await GetInput();
+
         var onlyHorizontalAndVerticals = lineSegments
-            .Where(p => 
-                p.start.x == p.end.x || 
+            .Where(p =>
+                p.start.x == p.end.x ||
                 p.start.y == p.end.y)
             .ToArray();
 
-        var lines =
-            onlyHorizontalAndVerticals
-            .Select(ls => GetLines(ls).ToArray())
-            .ToArray();
-        var map = GetMap();
-        var linesCoordinates = lines.SelectMany(l => l);
-        foreach (var coordinate in linesCoordinates)
-        {
-            map = UpdateMap(map, coordinate);
-        }
-
-        var overlaps = map.SelectMany(row => row.Select(col => col)).ToLookup(n => n);
-        var howManyMostDangerousPoints = 
-            overlaps
-            .Where(o => o.Key >= 2)
-            .Select(o => o.Key)
-            .Sum(k => overlaps[k].Count());
-
-        return howManyMostDangerousPoints;
-    }
-
-
-
-    public static async Task<object> Two()
-    {
-        var lineSegments = await GetInput();
+        var linesData =
+            onlyHorizontalAndVertical ?
+                lineSegments
+                .Where(p =>
+                    p.start.x == p.end.x ||
+                    p.start.y == p.end.y
+                ) :
+                lineSegments;
 
         var lines =
-            lineSegments
+            linesData
             .Select(ls => GetLines(ls).ToArray())
             .ToArray();
+
         var map = GetMap();
         var linesCoordinates = lines.SelectMany(l => l);
         foreach (var coordinate in linesCoordinates)
@@ -103,4 +87,7 @@
 
         return howManyMostDangerousPoints;
     }
+
+    public static async Task<object> One() => await GetOverlapsOverTwo(true);
+    public static async Task<object> Two() => await GetOverlapsOverTwo(false);
 }
