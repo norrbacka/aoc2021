@@ -47,7 +47,8 @@ public static class Day6
         .Pipe(i => SimulateDays(i, 80))
         .Sum();
 
-    public static async Task<object> Two() => (await GetInput())
+    public static async Task<object> Two() => 
+        (await GetInput())
         .Pipe(ToCountedInput)
         .Pipe(i => SimulateDays(i, 256))
         .Sum();
