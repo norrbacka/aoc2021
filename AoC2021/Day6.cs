@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using WinstonPuckett.PipeExtensions;
+﻿using WinstonPuckett.PipeExtensions;
 
 public static class Day6
 {
