@@ -1,54 +1,59 @@
-﻿using WinstonPuckett.PipeExtensions;
+﻿using System.Collections.Concurrent;
+using WinstonPuckett.PipeExtensions;
 
 public static class Day6
 {
-    private static async Task<int[]> GetInput() =>
+    private static async Task<long[]> GetInput() =>
         (await Inputs
         .Read("inputs/day6.txt")
-        .Select(text => text.Split(",").Select(s => int.Parse(s)))
+        .Select(text => text.Split(",").Select(s => long.Parse(s)))
         .ToListAsync())
         .SelectMany(x => x)
         .ToArray();
 
-    public static IEnumerable<int> ProceedOneDay(IEnumerable<int> input)
+    public static long[] ToCountedInput(long[] input) => new long[]
     {
-        var childrenCount = 0;
-        foreach (var i in input)
-        {
-            if (i > 0)
-            {
-                var di = i - 1;
-                yield return di;
-            }
-            else
-            {
-                childrenCount++;
-                var itself = 6;
-                yield return itself;
-            }
-        }
-        foreach(var _ in Enumerable.Range(0, childrenCount))
-        {
-            yield return 8;
-        }
-    }
+        input.Count(i => i == 0),
+        input.Count(i => i == 1),
+        input.Count(i => i == 2),
+        input.Count(i => i == 3),
+        input.Count(i => i == 4),
+        input.Count(i => i == 5),
+        input.Count(i => i == 6),
+        input.Count(i => i == 7),
+        input.Count(i => i == 8)
+    };
 
-    public static int[][] ProceedDays(IEnumerable<int> input, int day, int stop, int[][] result)
+    public static long[] ProceedOneDay(long[] input) => new long[]
     {
-        if (day <= stop)
+        input[1],
+        input[2],
+        input[3],
+        input[4],
+        input[5],
+        input[6],
+        input[7] + input[0],
+        input[8],
+        input[0],
+    };
+
+    public static long[] SimulateDays(long[] input, int days)
+    {
+        foreach (var day in Enumerable.Range(1, days))
         {
-            var newInput = ProceedOneDay(input).ToArray();
-            var newResult = result.Select(r => r).Append(newInput).ToArray();
-            return ProceedDays(newInput, day + 1, stop, newResult);
+            input = ProceedOneDay(input);
         }
-        return result;
+        return input;
     }
 
     public static async Task<object> One() =>
         (await GetInput())
-        .Pipe(input => ProceedDays(input, 1, 80, new int[][] { }))
-        .Last()
-        .Count();
+        .Pipe(ToCountedInput)
+        .Pipe(i => SimulateDays(i, 80))
+        .Sum();
 
-    public static async Task<object> Two() => "bar";
+    public static async Task<object> Two() => (await GetInput())
+        .Pipe(ToCountedInput)
+        .Pipe(i => SimulateDays(i, 256))
+        .Sum();
 }
