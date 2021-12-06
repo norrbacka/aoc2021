@@ -39,10 +39,7 @@ public static class Day6
 
     public static long[] SimulateDays(long[] input, int days)
     {
-        foreach (var day in Enumerable.Range(1, days))
-        {
-            input = ProceedOneDay(input);
-        }
+        foreach (var day in Enumerable.Range(1, days)) input = ProceedOneDay(input);
         return input;
     }
 
