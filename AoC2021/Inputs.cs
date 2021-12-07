@@ -4,6 +4,6 @@
     {
         using StreamReader reader = File.OpenText(fileName);
         while (reader != null && !reader.EndOfStream)
-            yield return await reader.ReadLineAsync();
+            yield return (await reader.ReadLineAsync() ?? "") ?? "";
     }
 }

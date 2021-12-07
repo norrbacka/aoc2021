@@ -6,6 +6,6 @@
         .Select(text => text)
         .ToListAsync();
 
-    public static async Task<object> One() => "foo";
-    public static async Task<object> Two() => "bar";
+    public static async Task<object> One() => await Task.Run(() => "Not yet implemented");
+    public static async Task<object> Two() => await Task.Run(() => "Not yet implemented");
 }
