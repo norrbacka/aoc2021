@@ -31,7 +31,7 @@ static async Task Write(string text)
     {
         "test" => await Test.Run(),
         EXIT_MSG => "exiting...",
-        "-h" => "Day number and task letter, like 1a, 2b, 15a. 'exit' to quit.",
+        "-h" => "Day number and task number separated with dot, like 1.1, 1.2, 23.1. 'exit' to quit.",
         _ => await GetDay(text)
     });
     if(text != EXIT_MSG)
