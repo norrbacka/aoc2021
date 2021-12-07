@@ -4,6 +4,11 @@ Hello there, and welcome to my solutions for Advent of Code 2021. Trying to writ
 
 Enjoy, be safe, be healthy!
 
+## How to run?
+Start the console application and it will ask you for a day, like 1.1 for day 1 and task 1 or 14.2 for Day 14 and task 2. 
+The console prompt my result for that day. 
+So change to your input or testdata in the corresponding file: "inputs/day{daynumber}.txt".
+
 ## Progression
 :star::star: [Day 1](/AoC2021/Day01.cs) \
 :star::star: [Day 2](/AoC2021/Day02.cs) \
