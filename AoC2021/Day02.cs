@@ -2,7 +2,7 @@
 using WinstonPuckett.PipeExtensions;
 using System.Reflection;
 
-public static class Day2
+public static class Day02
 {
     private static async Task<IList<(string Ins, int Unit)>> GetInput() =>
         await Inputs

@@ -24,15 +24,15 @@
 	<Content Include="Inputs\day12.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
 	<Content Include="Inputs\day11.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
 	<Content Include="Inputs\day10.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day9.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day8.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day7.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day6.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day5.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day4.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-    <Content Include="Inputs\day3.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day2.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-	<Content Include="Inputs\day1.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day09.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day08.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day07.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day06.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day05.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day04.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+    <Content Include="Inputs\day03.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day02.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+	<Content Include="Inputs\day01.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-public static class Day8
+public static class Day09
 {
     private static async Task<List<string>> GetInput() =>
         await Inputs

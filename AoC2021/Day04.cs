@@ -3,7 +3,7 @@ using MoreLinq;
 using System.Reflection;
 using WinstonPuckett.PipeExtensions;
 
-public static class Day4
+public static class Day04
 {
     static async Task<List<string>> GetInput() =>
         await Inputs

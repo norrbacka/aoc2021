@@ -5,13 +5,13 @@ Hello there, and welcome to my solutions for Advent of Code 2021. Trying to writ
 Enjoy, be safe, be healthy!
 
 ## Progression
-:star::star: [Day 1](/AoC2021/Day1.cs) \
-:star::star: [Day 2](/AoC2021/Day2.cs) \
-:star::star: [Day 3](/AoC2021/Day3.cs) \
-:star::star: [Day 4](/AoC2021/Day4.cs) \
-:star::star: [Day 5](/AoC2021/Day5.cs)\
-:star::star: [Day 6](/AoC2021/Day6.cs)\
-:star::star: [Day 7](/AoC2021/Day7.cs)\
+:star::star: [Day 1](/AoC2021/Day01.cs) \
+:star::star: [Day 2](/AoC2021/Day02.cs) \
+:star::star: [Day 3](/AoC2021/Day03.cs) \
+:star::star: [Day 4](/AoC2021/Day04.cs) \
+:star::star: [Day 5](/AoC2021/Day05.cs)\
+:star::star: [Day 6](/AoC2021/Day06.cs)\
+:star::star: [Day 7](/AoC2021/Day07.cs)\
 :x::x: Day 8 \
 :x::x: Day 9 \
 :x::x: Day 10 \

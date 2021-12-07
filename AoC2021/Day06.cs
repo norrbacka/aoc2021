@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using WinstonPuckett.PipeExtensions;
 
-public static class Day6
+public static class Day06
 {
     private static async Task<long[]> GetInput() =>
         (await Inputs

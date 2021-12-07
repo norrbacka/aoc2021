@@ -9,13 +9,14 @@ static async Task<object> GetDay(string text)
     {
         var regexMatch = Regex.Match(text, @"(?<dayNumber>\d*)(\.)(?<task>\d*)");
         if (!regexMatch.Success) return "Cannot find what you are looking for!";
-        var dayNumber = int.Parse(regexMatch.Groups["dayNumber"].Value);
-        var task = int.Parse(regexMatch.Groups["task"].Value);
+        var dayNumber = regexMatch.Groups["dayNumber"].Value;
+        if(dayNumber.Length == 1) dayNumber = "0" + dayNumber;
+        var task = regexMatch.Groups["task"].Value;
         var type = Type.GetType($"Day{dayNumber}");
         var funcName = task switch
         {
-            1 => "One",
-            2 => "Two",
+            "1" => "One",
+            "2" => "Two",
             _ => null
         };
         if (funcName == null) return "No method with that name";

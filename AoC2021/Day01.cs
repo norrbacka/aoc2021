@@ -4,7 +4,7 @@ using WinstonPuckett.PipeExtensions;
 using Microsoft.FSharp.Collections;
 using System.Reflection;
 
-public static class Day1
+public static class Day01
 {
     private static async Task<IList<int>> GetInput() => 
         await Inputs
