@@ -11,7 +11,7 @@ Enjoy, be safe, be healthy!
 :star::star: [Day 4](/AoC2021/Day4.cs) \
 :star::star: [Day 5](/AoC2021/Day5.cs)\
 :star::star: [Day 6](/AoC2021/Day6.cs)\
-:x::x: Day 7 \
+:star::star: [Day 7](/AoC2021/Day7.cs)\
 :x::x: Day 8 \
 :x::x: Day 9 \
 :x::x: Day 10 \
