@@ -2,12 +2,13 @@
 using static MoreLinq.Extensions.PairwiseExtension;
 using WinstonPuckett.PipeExtensions;
 using Microsoft.FSharp.Collections;
+using System.Reflection;
 
 public static class Day1
 {
     private static async Task<IList<int>> GetInput() => 
         await Inputs
-        .Read("inputs/day1.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(i => int.Parse(i))
         .ToListAsync();
 

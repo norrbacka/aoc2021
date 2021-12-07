@@ -33,7 +33,6 @@
     <Content Include="Inputs\day3.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
 	<Content Include="Inputs\day2.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
 	<Content Include="Inputs\day1.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
-    <Content Include="Inputs\test.txt"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
   </ItemGroup>
 
   <ItemGroup>

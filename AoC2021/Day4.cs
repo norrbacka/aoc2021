@@ -1,12 +1,13 @@
 ﻿using LanguageExt;
 using MoreLinq;
+using System.Reflection;
 using WinstonPuckett.PipeExtensions;
 
 public static class Day4
 {
     static async Task<List<string>> GetInput() =>
         await Inputs
-        .Read("inputs/day4.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(text => text)
         .ToListAsync();
 

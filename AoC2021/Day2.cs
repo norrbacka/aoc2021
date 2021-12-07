@@ -1,11 +1,12 @@
 ﻿using static MoreLinq.Extensions.PairwiseExtension;
 using WinstonPuckett.PipeExtensions;
+using System.Reflection;
 
 public static class Day2
 {
     private static async Task<IList<(string Ins, int Unit)>> GetInput() =>
         await Inputs
-        .Read("inputs/day2.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(text => (Ins: text.Split(" ")[0].Trim().ToLower(), Unit: int.Parse(text.Split(" ")[1])))
         .ToListAsync();
 

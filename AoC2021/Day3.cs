@@ -1,10 +1,11 @@
-﻿using WinstonPuckett.PipeExtensions;
+﻿using System.Reflection;
+using WinstonPuckett.PipeExtensions;
 
 public static class Day3
 {
     private static async Task<List<bool[]>> GetInput() =>
         await Inputs
-        .Read("inputs/day3.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(text => text.Trim().Select(c => c == '1').ToArray())
         .ToListAsync();
 

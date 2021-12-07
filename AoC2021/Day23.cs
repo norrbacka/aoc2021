@@ -1,8 +1,10 @@
-﻿public static class Day23
+﻿using System.Reflection;
+
+public static class Day23
 {
     private static async Task<List<string>> GetInput() =>
         await Inputs
-        .Read("inputs/day23.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(text => text)
         .ToListAsync();
 

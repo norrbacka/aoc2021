@@ -1,10 +1,11 @@
-﻿using WinstonPuckett.PipeExtensions;
+﻿using System.Reflection;
+using WinstonPuckett.PipeExtensions;
 
 public static class Day6
 {
     private static async Task<long[]> GetInput() =>
         (await Inputs
-        .Read("inputs/day6.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(text => text.Split(",").Select(s => long.Parse(s)))
         .ToListAsync())
         .SelectMany(x => x)

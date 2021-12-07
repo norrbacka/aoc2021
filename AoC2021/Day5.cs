@@ -1,8 +1,10 @@
-﻿public static class Day5
+﻿using System.Reflection;
+
+public static class Day5
 {
     private static async Task<List<((int x, int y) start, (int x, int y) end)>> GetInput() =>
         await Inputs
-        .Read("inputs/day5.txt")
+        .Read(MethodBase.GetCurrentMethod()?.DeclaringType?.FullName?.Split("+").First() ?? "")
         .Select(text =>
         {
             var pairs = text.Split(" -> ");
