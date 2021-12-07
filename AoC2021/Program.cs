@@ -1,35 +1,38 @@
-﻿using static System.Console;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
+using static System.Console;
 using static System.ReadLine;
 const string EXIT_MSG = "exit";
+static async Task<object> GetDay(string text)
+{
+    var regexMatch = Regex.Match(text, @"(?<dayNumber>\d)(\.)(?<task>\d)");
+    if(!regexMatch.Success) return "Cannot find what you are looking for!";
+    var dayNumber = int.Parse(regexMatch.Groups["dayNumber"].Value);
+    var task = int.Parse(regexMatch.Groups["task"].Value);
+    var type = Type.GetType($"Day{dayNumber}");
+    var funcName = task switch
+    {
+        1 => "One",
+        2 => "Two",
+        _ => null
+    };
+    if(funcName == null) return "No method with that name";
+    var method = type?.GetMethod(funcName, BindingFlags.Public | BindingFlags.Static);
+    var funcCall = method?.Invoke(null, null);
+    if(funcCall == null) return "Task is not callable";
+    var taskFuncCall = ((Task)funcCall);
+    await taskFuncCall.ConfigureAwait(false);
+    var resultProperty = taskFuncCall.GetType().GetProperty("Result");
+    return resultProperty?.GetValue(taskFuncCall) ?? "No result fom Task";
+}
 static async Task Write(string text) 
 {  
     WriteLine(text switch
     {
-        "1.1" => await Day1.One(),
-        "1.2" => await Day1.Two(),
-
-        "2.1" => await Day2.One(),
-        "2.2" => await Day2.Two(),
-
-        "3.1" => await Day3.One(),
-        "3.2" => await Day3.Two(),
-
-        "4.1" => await Day4.One(),
-        "4.2" => await Day4.Two(),
-
-        "5.1" => await Day5.One(),
-        "5.2" => await Day5.Two(),
-
-        "6.1" => await Day6.One(),
-        "6.2" => await Day6.Two(),
-
-        "7.1" => await Day7.One(),
-        "7.2" => await Day7.Two(),
-
         "test" => await Test.Run(),
         EXIT_MSG => "exiting...",
         "-h" => "Day number and task letter, like 1a, 2b, 15a. 'exit' to quit.",
-        _ => "Idk? Try again."
+        _ => await GetDay(text)
     });
     if(text != EXIT_MSG)
     {
