@@ -1,5 +1,5 @@
 ﻿using LanguageExt;
-
+using WinstonPuckett.PipeExtensions;
 public static class Day7
 {
     private static async Task<int[]> GetInput() =>
@@ -12,72 +12,40 @@ public static class Day7
 
     static IEnumerable<int> GetPossibleEndPositions(int[] inputs)
     {
-        var max = inputs.Max();
-        for(var min = inputs.Min(); min <= max; min++)
-        {
-            yield return min;
-        }
+        for(var min = inputs.Min(); min <= inputs.Max(); min++) yield return min;
     }
 
     static int CalculateFuel(int currentFuelConsumption, int number, int horizontalPos) =>
         currentFuelConsumption + Math.Abs(number - horizontalPos);
 
-    public static async Task<object> One()
-    {
-        var input = await GetInput();
-        (int horizontalPos, int totalFuelConsumption) bestFuelPos = (-1, int.MaxValue);   
-        foreach(var horizonalPos in GetPossibleEndPositions(input))
-        {
-            var fuelConsumption = 0;
-            bool skiped = false;
-            foreach (var number in input)
-            {
-                fuelConsumption = CalculateFuel(fuelConsumption, number, horizonalPos);
-                if(fuelConsumption > bestFuelPos.totalFuelConsumption)
-                {
-                    skiped = true;
-                    continue;
-                }
-            }
-            if(!skiped)
-            {
-                bestFuelPos = (horizonalPos, fuelConsumption);
-            }
-        }
-        Console.WriteLine($"horizontalPos: {bestFuelPos.horizontalPos}, totalFuelConsumption: {bestFuelPos.totalFuelConsumption}");
-        return bestFuelPos.totalFuelConsumption;
-    }
-
-    static int CalculateFuelWithSteps(int currentFuelConsumption, int number, int horizontalPos)
-    {
-        var steps = Math.Abs(number - horizontalPos);
-        var totalCost = Enumerable.Range(1, steps).Sum();
-        return currentFuelConsumption + totalCost;
-    }
-
-    public static async Task<object> Two()
+    static async Task<(int horizontalPos, int totalFuelConsumption)> CalculateLeastFuel(Func<int, int, int, int> calculateFuelFunc)
     {
         var input = await GetInput();
         (int horizontalPos, int totalFuelConsumption) bestFuelPos = (-1, int.MaxValue);
         foreach (var horizonalPos in GetPossibleEndPositions(input))
         {
-            var fuelConsumption = 0;
-            bool skiped = false;
+            var newFuelResult = true; var fuelConsumption = 0;
             foreach (var number in input)
             {
-                fuelConsumption = CalculateFuelWithSteps(fuelConsumption, number, horizonalPos);
-                if (fuelConsumption > bestFuelPos.totalFuelConsumption)
-                {
-                    skiped = true;
-                    continue;
-                }
+                fuelConsumption = calculateFuelFunc(fuelConsumption, number, horizonalPos);
+                newFuelResult = fuelConsumption <= bestFuelPos.totalFuelConsumption;
+                if (newFuelResult) continue;
             }
-            if (!skiped)
-            {
-                bestFuelPos = (horizonalPos, fuelConsumption);
-            }
+            if (newFuelResult) bestFuelPos = (horizonalPos, fuelConsumption);
         }
-        Console.WriteLine($"horizontalPos: {bestFuelPos.horizontalPos}, totalFuelConsumption: {bestFuelPos.totalFuelConsumption}");
-        return bestFuelPos.totalFuelConsumption;
+        return bestFuelPos;
     }
+
+    public static async Task<object> One() =>
+        (await CalculateLeastFuel(CalculateFuel))
+        .totalFuelConsumption;
+
+    static int CalculateFuelWithSteps(int currentFuelConsumption, int number, int horizontalPos) => 
+        Math.Abs(number - horizontalPos)
+        .Pipe(steps => Enumerable.Range(1, steps).Sum())
+        .Pipe(totalCost => currentFuelConsumption + totalCost);
+
+    public static async Task<object> Two() =>
+        (await CalculateLeastFuel(CalculateFuelWithSteps))
+        .totalFuelConsumption;
 }
