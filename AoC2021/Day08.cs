@@ -35,35 +35,6 @@ public static class Day08
         return sum;
     }
 
-    /*  Indexes:
-
-         0000
-        1    2
-        1    2
-         3333
-        4    5
-        4    5
-         6666
-
-     dddd
-    e    a
-    e    a
-     ffff
-    g    b
-    g    b
-     cccc
-
-    acedgfb: 8
-    cdfbe: 5
-    gcdfa: 2
-    fbcad: 3
-    dab: 7
-    cefabd: 9
-    cdfgeb: 6
-    eafb: 4
-    cagedb: 0
-    ab: 1
-    */
     public static async Task<object> Two()
     {
         var inputs = await GetInput();
@@ -71,68 +42,66 @@ public static class Day08
 
         foreach (var input in inputs)
         {
-            var numbers = input.SelectMany(x => x).ToArray();
+            var numbers = input.SelectMany(x => x.Select(c => c.ToArray())).ToArray();
             var output = input.Last();
-            var ones = numbers.First(o => o.Length == 2).Select(c => c).ToArray();
-            var fours = numbers.First(o => o.Length == 4).Select(c => c).ToArray();
-            var sevens = numbers.First(o => o.Length == 3).Select(c => c).ToArray();
-            var eights = numbers.First(o => o.Length == 7).Select(c => c).ToArray();
 
-            var either2or5 = ones.Intersect(fours).ToArray();
-            var either1or3 = fours.Except(either2or5).ToArray();
-            var is0 = sevens.Except(ones).ToArray();
-            var either4or6 = eights.Except(either1or3.Concat(either2or5).Concat(is0)).ToArray();
+            var ones = numbers.First(o => o.Length == 2).ToArray();
+            var fours = numbers.First(o => o.Length == 4).ToArray();
+            var sevens = numbers.First(o => o.Length == 3).ToArray();
+            var eights = numbers.First(o => o.Length == 7).ToArray();
 
-            int numbered = -1;
+            var nines = numbers.First(x =>
+                x.Length == 6 &&
+                x.Except(sevens).Except(fours).Count() == 1)
+                .ToArray();
 
-            foreach (var is4 in either4or6.Select(y => new[] { y }))
+            var sixes = numbers.First(x =>
+                x.Length == 6 &&
+                NotEq(x, nines) &&
+                ones.Except(x).Count() == 1).ToArray();
+
+            var zeros = numbers.First(x =>
+                x.Length == 6 &&
+                NotEq(x, nines) &&
+                NotEq(x, sixes)).ToArray();
+
+            var bottomLeft = eights.Except(nines).Single();
+            var topRight = eights.Except(sixes).Single();
+            var bottomRight = ones.Except(new[] { topRight }).Single();
+            var middle = eights.Except(zeros).Single();
+            var top = sevens.Except(new char[] { topRight, bottomRight }).Single();
+            var topLeft = fours.Except(new[] { middle, topRight, bottomRight }).Single();
+            var bottom = zeros.Except(new[] { top, topRight, topLeft, bottomLeft, bottomRight }).Single();
+
+            var twos = new[] { top, topRight, middle, bottomLeft, bottom };
+            var fives = new[] { top, topLeft, middle, bottomRight, bottom };
+            var threes = new[] { top, topRight, middle, bottomRight, bottom };
+
+            var map = new List<(char[] number, int value)>
             {
-                var is6 = either4or6.Except(is4).ToArray();
-                var nines = eights.Except(is4).ToArray();
-
-                var numbered2 = -1;
-                foreach (var is2 in either2or5.Select(y => new[] { y }))
-                {
-                    var is5 = either2or5.Except(is2).ToArray();
-                    var twos = nines.Except(is2).ToArray();
-                    var is1 = eights.Except(twos).Except(is5).ToArray();
-                    var threes = nines.Except(is1).ToArray();
-                    var is3 = fours.Except(is1).Except(is2).Except(is5).ToArray();
-                    var fives = nines.Except(is2).ToArray();
-                    var sixes = fives.Concat(is4).ToArray();
-
-                    var isSolution = is1.Any() && is3.Any();
-                    if (isSolution)
-                    {
-                        var digitalOutputs = new List<int>();
-                        char[][] outputsChars = output.Select(x => x.Select(y => y).ToArray()).ToArray();
-                        foreach (var o in outputsChars)
-                        {
-                            int digitalOutput = -1;
-                            if (o == ones) digitalOutput = 1;
-                            if (o == twos) digitalOutput = 2;
-                            if (o == threes) digitalOutput = 3;
-                            if (o == fours) digitalOutput = 4;
-                            if (o == fives) digitalOutput = 5;
-                            if (o == sixes) digitalOutput = 6;
-                            if (o == sevens) digitalOutput = 7;
-                            if (o == eights) digitalOutput = 8;
-                            digitalOutputs.Add(digitalOutput);
-                        }
-
-                        var stringed = string.Join("", digitalOutputs.Select(i => i.ToString()).ToArray());
-                        numbered2 = int.Parse(stringed);
-                        break;
-                    }
-                }
-                if(numbered2 != -1 )
-                {
-                    numbered = numbered2;
-                    break;
-                }
-            }
-            sum += numbered;
+                (zeros, 0),
+                (ones, 1),
+                (twos, 2),
+                (threes, 3),
+                (fours, 4),
+                (fives, 5),
+                (sixes, 6),
+                (sevens, 7),
+                (eights, 8),
+                (nines, 9),
+            };
+            var numbersDecoded = DecoreOutputWithMap(output, map);
+            var value = ToInteger(numbersDecoded);
+            sum += value;
         }
-        return 1337;
+        return sum;
+
+        static bool Eq(char[] x, char[] y) => x.All(i => y.Contains(i)) && x.Length == y.Length;
+        static bool NotEq(char[] x, char[] y) => !Eq(x,y);
+
+        static IEnumerable<string> DecoreOutputWithMap(string[] output, List<(char[] number, int value)> map) =>
+                    output.Select(x => map.Single(m => Eq(x.ToArray(), m.number)).value.ToString());
+
+        static int ToInteger(IEnumerable<string> numbersDecoded) => int.Parse(string.Join("", numbersDecoded));
     }
 }
