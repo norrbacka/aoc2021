@@ -29,8 +29,8 @@ public static class Day07
             foreach (var number in input)
             {
                 fuelConsumption = calculateFuelFunc(fuelConsumption, number, horizonalPos);
-                newFuelResult = fuelConsumption > bestFuelPos.totalFuelConsumption;
-                if (!newFuelResult) continue;
+                newFuelResult = fuelConsumption <= bestFuelPos.totalFuelConsumption;
+                if (newFuelResult) continue;
             }
             if (newFuelResult) bestFuelPos = (horizonalPos, fuelConsumption);
         }
