@@ -11,7 +11,7 @@ public static class Day09
         .Select(text => text.Select(i => long.Parse(i.ToString())).ToArray())
         .ToArrayAsync();
 
-    record Location((long X, long Y) Position, long Value, long[] Adjacents, bool IsLowerPointer);
+    record Location((long X, long Y) Position, long Value, long[] Adjacents, bool IsLowerPoint);
 
     private static IEnumerable<Location> GetLocations(long[][] input) =>
         Enumerable.Range(0, input.Length).SelectMany(i =>
@@ -45,7 +45,7 @@ public static class Day09
     public static async Task<object> One() =>
         (await GetInput())
         .Pipe(GetLocations)
-        .Pipe(inputAndAdjacents => inputAndAdjacents.Where(x => x.IsLowerPointer))
+        .Pipe(locations => locations.Where(x => x.IsLowerPoint))
         .Sum(x => (x.Value + 1));
 
     static IEnumerable<(long i, long j)> GetBasin(long[][] input, long i, long j, IEnumerable<(long i, long j)> sizes)
@@ -74,7 +74,7 @@ public static class Day09
         (await GetInput())
         .Pipe(input => 
             GetLocations(input)
-            .Where(x => x.IsLowerPointer)
+            .Where(x => x.IsLowerPoint)
             .Select(l =>
                 GetBasin(input, l.Position.X, l.Position.Y, new (long, long)[] { (l.Position.X, l.Position.Y) })
                 .Distinct()))
