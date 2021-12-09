@@ -21,9 +21,9 @@ public static class Day09
             var value = input[i][j];
             var adjacents = 
                (HasTop(i) ? new long[]{GetTop(input, i, j)} : Array.Empty<long>()).Pipe(adj =>
-                HasBottom(input, i) ? adj.Concat(GetBelow(input, i, j)).ToArray() : adj).Pipe(adj =>
-                HasLeft(j) ? adj.Concat(GetLeft(input, i, j)).ToArray() : adj).Pipe(adj =>
-                HasRight(input, i, j) ? adj.Concat(GetRight(input, i, j)).ToArray() : adj)
+                HasBottom(input, i) ? adj.Concat(GetBelow(input, i, j)) : adj).Pipe(adj =>
+                HasLeft(j) ? adj.Concat(GetLeft(input, i, j)) : adj).Pipe(adj =>
+                HasRight(input, i, j) ? adj.Concat(GetRight(input, i, j)) : adj)
             .ToArray();
             var isLowerPointer = adjacents.All(adj => adj > value);
             return new Location(position, value, adjacents, isLowerPointer);
