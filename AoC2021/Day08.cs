@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using WinstonPuckett.PipeExtensions;
 
-
 public static class Day08
 {
     static IEnumerable<string[][]> GroupedByTwo(IEnumerable<string> data)

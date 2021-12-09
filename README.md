@@ -18,7 +18,7 @@ So change to your input or testdata in the corresponding file: "inputs/day{daynu
 :star::star: [Day 6](/AoC2021/Day06.cs)\
 :star::star: [Day 7](/AoC2021/Day07.cs)\
 :star::star: [Day 8](/AoC2021/Day08.cs)\
-:x::x: Day 9 \
+:star::x: [Day 9](/AoC2021/Day09.cs)\
 :x::x: Day 10 \
 :x::x: Day 11 \
 :x::x: Day 12 \
