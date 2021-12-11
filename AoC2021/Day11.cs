@@ -102,7 +102,7 @@ public static class Day11
         int step = 0;
         do
         {
-            var flashed = new (int Y, int X)[] { };
+            var flashed = Array.Empty<(int Y, int X)>();
             for (int Y = 0; Y < octos.Length; Y++)
             {
                 for (int X = 0; X < octos[Y].Length; X++)
