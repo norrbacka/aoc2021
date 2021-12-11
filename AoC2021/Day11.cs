@@ -66,25 +66,21 @@ public static class Day11
         return (octos, flashed);
     }
 
+    static (int Y, int X)[] SimulateNext(ref Octo[][] octos)
+    {
+        var flashed = Array.Empty<(int Y, int X)>();
+        for (int Y = 0; Y < octos.Length; Y++)
+            for (int X = 0; X < octos[Y].Length; X++)
+                (octos, flashed) = Step(octos, octos[Y][X], flashed);
+        foreach (var (Y, X) in flashed)
+            octos[Y][X] = octos[Y][X].SetEnergy(0);
+        return flashed;
+    }
+
     static (Octo[][] Octos, int TotalFlashes) Simulate(this Octo[][] octos, int step, int stop)
     {
         int totalFlashes = 0;
-        do
-        {
-            var flashed = Array.Empty<(int Y, int X)>();
-            for (int Y = 0; Y < octos.Length; Y++)
-            {
-                for (int X = 0; X < octos[Y].Length; X++)
-                {
-                    (octos, flashed) = Step(octos, octos[Y][X], flashed);
-                }
-            }
-            totalFlashes += flashed.Length;
-            foreach (var (Y, X) in flashed)
-            {
-                octos[Y][X] = octos[Y][X].SetEnergy(0);
-            }
-        }
+        do { totalFlashes += SimulateNext(ref octos).Length; }
         while (++step <= stop); 
         return (octos, totalFlashes);
     }
@@ -101,22 +97,7 @@ public static class Day11
     static int SimulateUntilAllFlashes(this Octo[][] octos)
     {
         int step = 0;
-        do
-        {
-            var flashed = Array.Empty<(int Y, int X)>();
-            for (int Y = 0; Y < octos.Length; Y++)
-            {
-                for (int X = 0; X < octos[Y].Length; X++)
-                {
-                    (octos, flashed) = Step(octos, octos[Y][X], flashed);
-                }
-            }
-            foreach (var (Y, X) in flashed)
-            {
-                octos[Y][X] = octos[Y][X].SetEnergy(0);
-            }
-            step++;
-        }
+        do { _ = SimulateNext(ref octos); step++; }
         while (!octos.AllHasFlashed());
         return step;
     }
