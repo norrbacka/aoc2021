@@ -11,12 +11,8 @@ public static class Day11
 
     record Octo(int RowCount, int ColCount, int X, int Y, int Energy)
     {
-        public Octo SetEnergy(int energy) => 
-            energy >= 0 && energy <= 10 ? 
-                new Octo(RowCount, ColCount, X, Y, energy) : this;
-
+        public Octo SetEnergy(int energy) => new(RowCount, ColCount, X, Y, energy);
         public bool Flashes => Energy > 9;
-
         public bool HasTop => Y > 0;
         public bool HasRight => X < (ColCount - 1);
         public bool HasBottom => Y < (RowCount - 1);
@@ -25,7 +21,6 @@ public static class Day11
         public bool HasTopLeft => HasTop && HasLeft;
         public bool HasBottomRight => HasBottom && HasRight;
         public bool HasBottomLeft => HasBottom && HasLeft;
-
         public Option<Octo> GetTop(Octo[][] octos) => HasTop ? octos[Y - 1][X] : Option<Octo>.None;
         public Option<Octo> GetTopRight(Octo[][] octos) => HasTopRight ? octos[Y - 1][X + 1] : Option<Octo>.None;
         public Option<Octo> GetRight(Octo[][] octos) => HasRight ? octos[Y][X + 1]: Option<Octo>.None;
@@ -37,13 +32,12 @@ public static class Day11
     };
 
     static Octo[][] ToOcto(this int[][] input) { 
-        var octosList =
+        var octoGroupedByRow =
             Enumerable.Range(0, input.Length).SelectMany(y =>
             Enumerable.Range(0, input[y].Length).Select(x => 
-                new Octo(input.Length, input[y].Length, x, y, input[y][x])))
-            .ToLookup(o => o.Y);
-        var rows = octosList.Select(X => X.Key);
-        var cols = rows.Select(r => octosList[r].ToArray()).ToArray();
+                new Octo(input.Length, input[y].Length, x, y, input[y][x]))).ToLookup(o => o.Y);
+        var rows = octoGroupedByRow.Select(X => X.Key);
+        var cols = rows.Select(r => octoGroupedByRow[r].ToArray()).ToArray();
         return cols;
     }
 
@@ -80,8 +74,7 @@ public static class Day11
     static (Octo[][] Octos, int TotalFlashes) Simulate(this Octo[][] octos, int step, int stop)
     {
         int totalFlashes = 0;
-        do { totalFlashes += SimulateNext(ref octos).Length; }
-        while (++step <= stop); 
+        do { totalFlashes += SimulateNext(ref octos).Length; } while (++step <= stop); 
         return (octos, totalFlashes);
     }
 
@@ -91,14 +84,12 @@ public static class Day11
         .Simulate(1, 100)
         .TotalFlashes;
 
-    static bool AllHasFlashed(this Octo[][] octos) => 
-        octos.SelectMany(o => o).All(o => o.Energy == 0);
+    static bool AllHasFlashed(this Octo[][] octos) => octos.SelectMany(o => o).All(o => o.Energy == 0);
 
     static int SimulateUntilAllFlashes(this Octo[][] octos)
     {
         int step = 0;
-        do { _ = SimulateNext(ref octos); step++; }
-        while (!octos.AllHasFlashed());
+        do { _ = SimulateNext(ref octos); step++; } while (!octos.AllHasFlashed());
         return step;
     }
 
