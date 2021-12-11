@@ -11,10 +11,7 @@ public static class Day11
 
     record Octo(int rowLength, int colLength, int x, int y, int energy)
     {
-        public Octo SetEnergy(int e) => 
-            e >= 0 && e <= 10 ?
-            new Octo(rowLength, colLength, x, y, e) :
-            this;
+        public Octo SetEnergy(int e) => e >= 0 && e <= 10 ? new Octo(rowLength, colLength, x, y, e) : this;
 
         public bool Flashes => energy > 9;
 
@@ -67,7 +64,7 @@ public static class Day11
         return (octos, flashed);
     }
 
-    static (Octo[][], int) Simulate(this Octo[][] octos, int step, int stop)
+    static (Octo[][] Octos, int TotalFlashes) Simulate(this Octo[][] octos, int step, int stop)
     {
         int totalFlashes = 0;
         octos.Print(0);
@@ -103,13 +100,40 @@ public static class Day11
         Debug.WriteLine("");
     }
 
-    public static async Task<object> One()
+    public static async Task<object> One() =>
+         (await GetInput())
+        .ToOcto()
+        .Simulate(1, 100)
+        .TotalFlashes;
+
+    static bool AllHasFlashed(this Octo[][] octos) => 
+        octos.SelectMany(o => o).All(o => o.energy == 0);
+
+    static int SimulateUntilAllFlashes(this Octo[][] octos)
     {
-        var inputs = (await GetInput());
-        var octos = inputs.ToOcto();
-        int totalFlashes = 0;
-        (octos, totalFlashes)  = octos.Simulate(1, 100);
-        return totalFlashes;
+        int step = 0;
+        do
+        {
+            var flashed = new (int y, int x)[] { };
+            for (int y = 0; y < octos.Length; y++)
+            {
+                for (int x = 0; x < octos[y].Length; x++)
+                {
+                    (octos, flashed) = Step(octos, octos[y][x], flashed);
+                }
+            }
+            foreach (var flash in flashed)
+            {
+                octos[flash.y][flash.x] = octos[flash.y][flash.x].SetEnergy(0);
+            }
+            step++;
+        }
+        while (!octos.AllHasFlashed());
+        return step;
     }
-    public static async Task<object> Two() => await Task.Run(() => "Not yet implemented");
+
+    public static async Task<object> Two() => 
+        (await GetInput())
+        .ToOcto()
+        .SimulateUntilAllFlashes();
 }
