@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using LanguageExt;
+using System.Reflection;
 
 public static class Day11
 {
@@ -25,14 +26,14 @@ public static class Day11
         public bool HasBottomRight => HasBottom && HasRight;
         public bool HasBottomLeft => HasBottom && HasLeft;
 
-        public Octo GetTop(Octo[][] octos) => octos[Y - 1][X];
-        public Octo GetTopRight(Octo[][] octos) => octos[Y - 1][X + 1];
-        public Octo GetRight(Octo[][] octos) => octos[Y][X + 1];
-        public Octo GetBottomRight(Octo[][] octos) => octos[Y + 1][X + 1];
-        public Octo GetBottom(Octo[][] octos) => octos[Y + 1][X];
-        public Octo GetBottomLeft(Octo[][] octos) => octos[Y + 1][X - 1];
-        public Octo GetLeft(Octo[][] octos) => octos[Y][X - 1];
-        public Octo GetTopLeft(Octo[][] octos) => octos[Y - 1][X - 1];
+        public Option<Octo> GetTop(Octo[][] octos) => HasTop ? octos[Y - 1][X] : Option<Octo>.None;
+        public Option<Octo> GetTopRight(Octo[][] octos) => HasTopRight ? octos[Y - 1][X + 1] : Option<Octo>.None;
+        public Option<Octo> GetRight(Octo[][] octos) => HasRight ? octos[Y][X + 1]: Option<Octo>.None;
+        public Option<Octo> GetBottomRight(Octo[][] octos) => HasBottomRight ? octos[Y + 1][X + 1] : Option<Octo>.None;
+        public Option<Octo> GetBottom(Octo[][] octos) => HasBottom ? octos[Y + 1][X] : Option<Octo>.None;
+        public Option<Octo> GetBottomLeft(Octo[][] octos) =>  HasBottomLeft ? octos[Y + 1][X - 1] : Option<Octo>.None;
+        public Option<Octo> GetLeft(Octo[][] octos) => HasLeft ? octos[Y][X - 1] : Option<Octo>.None;
+        public Option<Octo> GetTopLeft(Octo[][] octos) => HasTopLeft ? octos[Y - 1][X - 1] : Option<Octo>.None;
     };
 
     static Octo[][] ToOcto(this int[][] input) { 
@@ -53,14 +54,14 @@ public static class Day11
         if (octo.Flashes && !flashed.Contains((octo.Y, octo.X)))
         {
             flashed = flashed.Append((octo.Y, octo.X)).ToArray();
-            if (octo.HasTop) (octos, flashed) = Step(octos, octo.GetTop(octos), flashed);
-            if(octo.HasTopRight) (octos, flashed) = Step(octos, octo.GetTopRight(octos), flashed);
-            if(octo.HasRight) (octos, flashed) = Step(octos, octo.GetRight(octos), flashed);
-            if(octo.HasBottomRight) (octos, flashed) = Step(octos, octo.GetBottomRight(octos), flashed);
-            if(octo.HasBottom) (octos, flashed) = Step(octos, octo.GetBottom(octos), flashed);
-            if(octo.HasBottomLeft) (octos, flashed) = Step(octos, octo.GetBottomLeft(octos), flashed);
-            if(octo.HasLeft) (octos, flashed) = Step(octos, octo.GetLeft(octos), flashed);
-            if(octo.HasTopLeft) (octos, flashed) = Step(octos, octo.GetTopLeft(octos), flashed);
+            (octos, flashed) = octo.GetTop(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetTopRight(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetRight(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetBottomRight(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetBottom(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetBottomLeft(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetLeft(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
+            (octos, flashed) = octo.GetTopLeft(octos).Match(octo => Step(octos, octo, flashed), () => (octos, flashed));
         }
         return (octos, flashed);
     }
@@ -70,7 +71,7 @@ public static class Day11
         int totalFlashes = 0;
         do
         {
-            var flashed = new (int Y, int X)[] { };
+            var flashed = Array.Empty<(int Y, int X)>();
             for (int Y = 0; Y < octos.Length; Y++)
             {
                 for (int X = 0; X < octos[Y].Length; X++)
@@ -78,10 +79,10 @@ public static class Day11
                     (octos, flashed) = Step(octos, octos[Y][X], flashed);
                 }
             }
-            totalFlashes += flashed.Count();
-            foreach (var flash in flashed)
+            totalFlashes += flashed.Length;
+            foreach (var (Y, X) in flashed)
             {
-                octos[flash.Y][flash.X] = octos[flash.Y][flash.X].SetEnergy(0);
+                octos[Y][X] = octos[Y][X].SetEnergy(0);
             }
         }
         while (++step <= stop); 
@@ -110,9 +111,9 @@ public static class Day11
                     (octos, flashed) = Step(octos, octos[Y][X], flashed);
                 }
             }
-            foreach (var flash in flashed)
+            foreach (var (Y, X) in flashed)
             {
-                octos[flash.Y][flash.X] = octos[flash.Y][flash.X].SetEnergy(0);
+                octos[Y][X] = octos[Y][X].SetEnergy(0);
             }
             step++;
         }
