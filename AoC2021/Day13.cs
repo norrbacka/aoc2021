@@ -30,7 +30,7 @@ public static class Day13
         {
             var split = text.Split("along ").Last().Trim().Split("=");
             var axis = char.Parse(split[0]);
-            var foldValue= int.Parse(split[1]);
+            var foldValue = int.Parse(split[1]);
             return (axis, foldValue);
         })
         .ToArray();
