@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using System.Numerics;
 using System.Reflection;
 using static MoreLinq.Extensions.PairwiseExtension;
 
@@ -16,11 +17,6 @@ public static class Day14
             First == a && Second == b;
     };
 
-    static Option<Rule> Get(this Rule[] rules, char a, char b) =>
-        rules.Any(r => r.Covers(a,b)) ? 
-            rules.Single(r => r.Covers(a, b)) :
-            Option<Rule>.None;
-
     static char[] GetTemplate(this string[] inputs) =>
         inputs.First().Select(c => c).ToArray();
 
@@ -30,37 +26,56 @@ public static class Day14
             var split = i.Split(" -> ");
             var rule = new Rule(split[0][0], split[0][1], split[1][0]);
             return rule;
-        }).ToArray();   
+        }).ToArray();
 
-    static IEnumerable<char> SimultaneouslyInsert(char[] template, Rule[] rules)
+    static void Simulate(ref Dictionary<(char a, char b), BigInteger> count, ref Dictionary<char, BigInteger> polymerCount, Dictionary<(char a, char b), Rule> rules)
     {
-        foreach(var (a,b) in template.Pairwise((a,b) => (a,b)))
+        foreach (var (pair, pairCount) in new Dictionary<(char a, char b), BigInteger>(count))
         {
-            yield return a;
-            var maybeRule = rules.Get(a,b);
-            if(maybeRule.IsSome)
+            var maybeRule = rules.ContainsKey(pair) ? rules[pair] : Option<Rule>.None;
+            if (maybeRule.IsSome)
             {
+                count[pair] -= pairCount;
+
                 var rule = maybeRule.Some(r => r).None(() => throw new InvalidOperationException());
-                yield return rule.Insertion;
+                var polymer = rule.Insertion;
+                if (!count.ContainsKey((pair.a, polymer)))
+                {
+                    count.Add((pair.a, polymer), 0);
+                }
+                count[(pair.a, polymer)] += pairCount;
+
+                if (!count.ContainsKey((polymer, pair.b)))
+                {
+                    count.Add((polymer, pair.b), 0);
+                }
+                count[(polymer, pair.b)] += pairCount;
+
+                if (!polymerCount.ContainsKey(polymer))
+                {
+                    polymerCount.Add(polymer, 0);
+                }
+                polymerCount[polymer] += pairCount;
             }
         }
-        yield return template.Last();
     }
-
-    public static async Task<object> One()
+    private static async Task<object> Simulate(int rounds)
     {
         var input = await GetInput();
         var template = input.GetTemplate();
-        var rules = input.GetRules();
-        for (int i = 1; i <= 10; i++)
+        var rules = input.GetRules().ToDictionary(x => (x.First, x.Second));
+        var polymerCount = template.ToLookup(r => r).Select(l => (l.Key, Count: l.Count())).ToDictionary(x => x.Key, x => (BigInteger)x.Count);
+        var countedDict = template.Pairwise((a, b) => (a, b)).ToLookup(r => r).Select(l => (l.Key, Count: l.Count())).ToDictionary(x => x.Key, x => (BigInteger)x.Count);
+        for (int i = 1; i <= rounds; i++)
         {
-            template = SimultaneouslyInsert(template, rules).ToArray();
+            Simulate(ref countedDict, ref polymerCount, rules);
         }
-        var countedDict = template.ToLookup(r => r).Select(l => (l.Key, Count: l.Count())).ToDictionary(x => x.Key, x => x.Count);
-        var mostCommon = countedDict.Max(x => x.Value);
-        var leastCommon = countedDict.Min(x => x.Value);
+        var mostCommon = polymerCount.Max(x => x.Value);
+        var leastCommon = polymerCount.Min(x => x.Value);
         var diff = mostCommon - leastCommon;
         return diff;
     }
-    public static async Task<object> Two() => await Task.Run(() => "Not yet implemented");
+
+    public static async Task<object> One() => await Simulate(10);
+    public static async Task<object> Two() => await Simulate(40);
 }
