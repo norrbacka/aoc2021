@@ -11,10 +11,7 @@ public static class Day14
         .Select(text => text)
         .ToArrayAsync();
 
-    record Rule(char First, char Second, char Insertion)
-    {
-        public bool Covers(char a, char b) => First == a && Second == b;
-    };
+    record Rule(char First, char Second, char Insertion);
 
     static char[] GetTemplate(this string[] inputs) =>
         inputs
