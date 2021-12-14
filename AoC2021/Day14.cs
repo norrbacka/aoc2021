@@ -1,5 +1,4 @@
-﻿using LanguageExt;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Reflection;
 using WinstonPuckett.PipeExtensions;
 using static MoreLinq.Extensions.PairwiseExtension;
@@ -49,21 +48,19 @@ public static class Day14
     {
         foreach (var (pair, pairCount) in new Dictionary<(char a, char b), BigInteger>(count))
         {
-            var maybeRule = rules.ContainsKey(pair) ? rules[pair] : Option<Rule>.None;
-            if (maybeRule.IsSome)
-            {
-                count[pair] -= pairCount;
-                var polymer = maybeRule.Some(r => r.Insertion).None(() => throw new InvalidOperationException());
-                
-                if (!count.ContainsKey((pair.a, polymer))) count.Add((pair.a, polymer), 0);
-                count[(pair.a, polymer)] += pairCount;
+            if (!rules.ContainsKey(pair)) continue;
 
-                if (!count.ContainsKey((polymer, pair.b))) count.Add((polymer, pair.b), 0);
-                count[(polymer, pair.b)] += pairCount;
+            count[pair] -= pairCount;
+            var polymer = rules[pair].Insertion;
 
-                if (!polymerCount.ContainsKey(polymer)) polymerCount.Add(polymer, 0);
-                polymerCount[polymer] += pairCount;
-            }
+            if (!count.ContainsKey((pair.a, polymer))) count.Add((pair.a, polymer), 0);
+            count[(pair.a, polymer)] += pairCount;
+
+            if (!count.ContainsKey((polymer, pair.b))) count.Add((polymer, pair.b), 0);
+            count[(polymer, pair.b)] += pairCount;
+
+            if (!polymerCount.ContainsKey(polymer)) polymerCount.Add(polymer, 0);
+            polymerCount[polymer] += pairCount;
         }
     }
     private static async Task<object> Simulate(int rounds) =>
