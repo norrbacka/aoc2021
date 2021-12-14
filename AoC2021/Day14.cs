@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using System.Numerics;
 using System.Reflection;
+using WinstonPuckett.PipeExtensions;
 using static MoreLinq.Extensions.PairwiseExtension;
 
 public static class Day14
@@ -13,22 +14,38 @@ public static class Day14
 
     record Rule(char First, char Second, char Insertion)
     {
-        public bool Covers(char a, char b) => 
-            First == a && Second == b;
+        public bool Covers(char a, char b) => First == a && Second == b;
     };
 
     static char[] GetTemplate(this string[] inputs) =>
-        inputs.First().Select(c => c).ToArray();
+        inputs
+        .First()
+        .Select(c => c)
+        .ToArray();
 
-    static Rule[] GetRules(this string[] inputs) =>
-        inputs.Skip(2).Select(i =>
+    static IDictionary<(char a, char b), Rule> GetRules(this string[] inputs) =>
+        inputs
+        .Skip(2)
+        .Select(i =>
         {
             var split = i.Split(" -> ");
             var rule = new Rule(split[0][0], split[0][1], split[1][0]);
             return rule;
-        }).ToArray();
+        })
+        .ToDictionary(x => (x.First, x.Second));
 
-    static void Simulate(ref Dictionary<(char a, char b), BigInteger> count, ref Dictionary<char, BigInteger> polymerCount, Dictionary<(char a, char b), Rule> rules)
+    static IDictionary<char, BigInteger> GetPolymerCounter(this char[] template) =>
+        template
+        .ToLookup(t => t)
+        .ToDictionary(t => t.Key, t => (BigInteger)t.Count());
+
+    static IDictionary<(char a, char b), BigInteger> GetPairCounter(this char[] template) =>
+        template
+        .Pairwise((a, b) => (a, b))
+        .ToLookup(t => t)
+        .ToDictionary(t => t.Key, t => (BigInteger)t.Count());
+
+    static void Simulate(ref IDictionary<(char a, char b), BigInteger> count, ref IDictionary<char, BigInteger> polymerCount, IDictionary<(char a, char b), Rule> rules)
     {
         foreach (var (pair, pairCount) in new Dictionary<(char a, char b), BigInteger>(count))
         {
@@ -36,45 +53,36 @@ public static class Day14
             if (maybeRule.IsSome)
             {
                 count[pair] -= pairCount;
-
-                var rule = maybeRule.Some(r => r).None(() => throw new InvalidOperationException());
-                var polymer = rule.Insertion;
-                if (!count.ContainsKey((pair.a, polymer)))
-                {
-                    count.Add((pair.a, polymer), 0);
-                }
+                var polymer = maybeRule.Some(r => r.Insertion).None(() => throw new InvalidOperationException());
+                
+                if (!count.ContainsKey((pair.a, polymer))) count.Add((pair.a, polymer), 0);
                 count[(pair.a, polymer)] += pairCount;
 
-                if (!count.ContainsKey((polymer, pair.b)))
-                {
-                    count.Add((polymer, pair.b), 0);
-                }
+                if (!count.ContainsKey((polymer, pair.b))) count.Add((polymer, pair.b), 0);
                 count[(polymer, pair.b)] += pairCount;
 
-                if (!polymerCount.ContainsKey(polymer))
-                {
-                    polymerCount.Add(polymer, 0);
-                }
+                if (!polymerCount.ContainsKey(polymer)) polymerCount.Add(polymer, 0);
                 polymerCount[polymer] += pairCount;
             }
         }
     }
-    private static async Task<object> Simulate(int rounds)
-    {
-        var input = await GetInput();
-        var template = input.GetTemplate();
-        var rules = input.GetRules().ToDictionary(x => (x.First, x.Second));
-        var polymerCount = template.ToLookup(r => r).Select(l => (l.Key, Count: l.Count())).ToDictionary(x => x.Key, x => (BigInteger)x.Count);
-        var countedDict = template.Pairwise((a, b) => (a, b)).ToLookup(r => r).Select(l => (l.Key, Count: l.Count())).ToDictionary(x => x.Key, x => (BigInteger)x.Count);
-        for (int i = 1; i <= rounds; i++)
+    private static async Task<object> Simulate(int rounds) =>
+        (await GetInput())
+        .Pipe(input => (
+            input.GetTemplate(), 
+            input.GetRules()))
+        .Pipe((template, rules) => (
+            template.GetPolymerCounter(),
+            template.GetPairCounter(),
+            rules
+        ))
+        .Pipe((polymerCount, pairCount, rules) =>
         {
-            Simulate(ref countedDict, ref polymerCount, rules);
-        }
-        var mostCommon = polymerCount.Max(x => x.Value);
-        var leastCommon = polymerCount.Min(x => x.Value);
-        var diff = mostCommon - leastCommon;
-        return diff;
-    }
+            for (int i = 1; i <= rounds; i++) Simulate(ref pairCount, ref polymerCount, rules);
+            var mostCommon = polymerCount.Max(x => x.Value);
+            var leastCommon = polymerCount.Min(x => x.Value);
+            return mostCommon - leastCommon;
+        });
 
     public static async Task<object> One() => await Simulate(10);
     public static async Task<object> Two() => await Simulate(40);
