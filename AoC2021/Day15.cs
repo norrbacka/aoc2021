@@ -72,12 +72,16 @@ public static class Day15
     */
 
     static int H(Position end, Position current) =>
-        current.Risk; // * (Math.Abs(current.X - end.X) + Math.Abs(current.Y - end.Y));
+        current.Risk * (Math.Abs(current.X - end.X) + Math.Abs(current.Y - end.Y));
 
 
 
-    static Position[] Search(Position[][] positions, Position start, Position end)
+    static Position[] Search(Position[][] positions, Position start, Position end, Position[][] allPaths)
     {
+        if(allPaths.Count() == 3)
+        {
+            return allPaths.OrderBy(x => x.Sum(y => y.Risk)).First();
+        }
         var openSet = new PriorityQueue<Position, int>();
         openSet.Enqueue(start, 0);
 
@@ -93,13 +97,9 @@ public static class Day15
 
             if (current == end)
             {
-                var totalPath = new Position[] { current };
-                do
-                {
-                    current = cameFrom[current];
-                    totalPath = totalPath.Prepend(current).ToArray();
-                } while (current != start);
-                return totalPath;
+                var fullPath = GetPath(start, cameFrom, current);
+                allPaths = allPaths.Append(fullPath).ToArray();
+                return Search(positions, start, end, allPaths); //TODO: reverse to previous decision and continue
             }
 
             var neighbours = positions.GetNeighbours(current);
@@ -117,7 +117,34 @@ public static class Day15
                 }
             }
         }
-        return new Position[] { };
+        return new Position[] {};
+
+        //static bool CoveredAlready(Position[][] allPaths, Position start, Dictionary<Position, Position> cameFrom, Position current)
+        //{        
+        //    var bar = trimedToSameLength.Any(t => 
+        //        string.Join("", t.Select(u => $"{u.X}{u.Y}")) ==
+        //        string.Join("", currentPath.Select(u => $"{u.X}{u.Y}")));
+        //    if(bar)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        static Position[] GetPath(Position start, Dictionary<Position, Position> cameFrom, Position current)
+        {
+            var foo = current;
+            var totalPath = new Position[] { foo };
+            do
+            {
+                foo = cameFrom[foo];
+                totalPath = totalPath.Prepend(foo).ToArray();
+            } while (foo != start);
+            return totalPath;
+        }
     }
 
     public static async Task<object> One()
@@ -126,7 +153,7 @@ public static class Day15
         var positions = input.ToPositions();
         var start = positions.GetStart();
         var end = positions.GetEnd();
-        var lowestRisk = Search(positions, start, end);
+        var lowestRisk = Search(positions, start, end, new Position[][] { });
         var stringified = string.Join(" -> ", lowestRisk.Select(x => $"({x.X}, {x.Y}, {x.Risk})"));
         Console.WriteLine(stringified);
         var currentRisk = lowestRisk.Sum(s => s.Risk);
