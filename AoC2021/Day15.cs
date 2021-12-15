@@ -76,63 +76,49 @@ public static class Day15
 
 
 
-    static Position[] Search(Position[][] positions, Position start, Position end, Position[][] allPaths)
+    static Position[] Search(Position[][] positions, Position start, Position end)
     {
-        if(allPaths.Count() == 3)
-        {
-            return allPaths.OrderBy(x => x.Sum(y => y.Risk)).First();
-        }
-        var openSet = new PriorityQueue<Position, int>();
-        openSet.Enqueue(start, 0);
+        var queue = new PriorityQueue<Position, int>();
+        queue.Enqueue(start, 0);
+        var visited = new System.Collections.Generic.HashSet<Position>();
+        
+        var cost = new Dictionary<Position, int>();
+        cost[start] = 0;
 
         var cameFrom = new Dictionary<Position, Position>();
-        var gScore = positions.SelectMany(p => p).ToDictionary(p => p, p => int.MaxValue);
-        var fScore = new Dictionary<Position, int>()
-        {
-            { start, 0}
-        };
-        while (openSet.Count > 0)
-        {
-            var current = openSet.Dequeue();
 
-            if (current == end)
+        do
+        {
+            var node = queue.Dequeue();
+
+            if(node == end)
             {
-                var fullPath = GetPath(start, cameFrom, current);
-                allPaths = allPaths.Append(fullPath).ToArray();
-                return Search(positions, start, end, allPaths); //TODO: reverse to previous decision and continue
+                return GetPath(start, cameFrom, node);
             }
 
-            var neighbours = positions.GetNeighbours(current);
-            foreach (var n in neighbours)
-            {
-                var score = H(end, n);
-                if (score < gScore[n])
+            var neighbours = positions.GetNeighbours(node);
+            foreach (var n in neighbours.OrderBy(x => x.Risk))
+            { 
+                if(visited.Contains(n)) continue;
+                
+                if(!cost.ContainsKey(n)) cost[n] = int.MaxValue;
+
+                int nodeCost = cost[node] + n.Risk;
+                bool worthVisiting = nodeCost < cost[n];
+                if (worthVisiting)
                 {
-                    cameFrom[n] = current;
-                    gScore[n] = score;
-                    if (!openSet.UnorderedItems.Contains((n, score)))
+                    cost[n] = nodeCost;
+                    cameFrom[n] = node;
+                    if(!queue.UnorderedItems.Contains((n, nodeCost)))
                     {
-                        openSet.Enqueue(n, score);
+                        queue.Enqueue(n, nodeCost);
                     }
                 }
             }
         }
-        return new Position[] {};
+        while(queue.Count > 0);
 
-        //static bool CoveredAlready(Position[][] allPaths, Position start, Dictionary<Position, Position> cameFrom, Position current)
-        //{        
-        //    var bar = trimedToSameLength.Any(t => 
-        //        string.Join("", t.Select(u => $"{u.X}{u.Y}")) ==
-        //        string.Join("", currentPath.Select(u => $"{u.X}{u.Y}")));
-        //    if(bar)
-        //    {
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        return false;
-        //    }
-        //}
+        return new Position[] {};
 
         static Position[] GetPath(Position start, Dictionary<Position, Position> cameFrom, Position current)
         {
@@ -153,10 +139,10 @@ public static class Day15
         var positions = input.ToPositions();
         var start = positions.GetStart();
         var end = positions.GetEnd();
-        var lowestRisk = Search(positions, start, end, new Position[][] { });
-        var stringified = string.Join(" -> ", lowestRisk.Select(x => $"({x.X}, {x.Y}, {x.Risk})"));
+        var lowestRisk = Search(positions, start, end);
+        var stringified = string.Join(" -> ", lowestRisk.Select(x => $"{x.Risk}"));
         Console.WriteLine(stringified);
-        var currentRisk = lowestRisk.Sum(s => s.Risk);
+        var currentRisk = lowestRisk.Skip(1).Sum(s => s.Risk);
         return $"Current risk: {currentRisk}";
     }
     public static async Task<object> Two() => await Task.Run(() => "Not yet implemented");
