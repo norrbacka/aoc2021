@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-using System.Linq;
 using System.Reflection;
 
 public static class Day15
@@ -29,14 +28,32 @@ public static class Day15
         public Option<Position> GetLeft(Position[][] Positions) => HasLeft ? Positions[Y][X - 1] : Option<Position>.None;
         public Option<Position> GetTopLeft(Position[][] Positions) => HasTopLeft ? Positions[Y - 1][X - 1] : Option<Position>.None;
     }
-    static Position[][] ToPositions(this int[][] input)
+    static Position[][] ToPositions(this int[][] input, int size)
     {
+        var w = input.Length;
+        var h = input[0].Length;
         var groupedByRow =
-            Enumerable.Range(0, input.Length).SelectMany(y =>
-            Enumerable.Range(0, input[y].Length).Select(x =>
-                new Position(input.Length, input[y].Length, x, y, input[y][x]))).ToLookup(o => o.Y);
-        var rows = groupedByRow.Select(X => X.Key);
-        var cols = rows.Select(r => groupedByRow[r].ToArray()).ToArray();
+            Enumerable.Range(0, w).SelectMany(y =>
+            Enumerable.Range(0, h).SelectMany(x =>
+            {
+                var positions = new List<Position>();
+                var risk = input[y][x];
+                for (int dY = 0; dY < size; dY++)
+                {
+                    for (int dX = 0; dX < size; dX++)
+                    {
+                        var subRisk = (risk + (dX + dY));
+                        if(subRisk > 9) subRisk = subRisk - 9;
+                        var subX = x + w * dX;
+                        var subY = y + h * dY;
+                        var pos = new Position(w*size, h*size, subX, subY, subRisk);
+                        positions.Add(pos);
+                    }
+                }
+                return positions;
+            })).ToLookup(o => o.Y);
+        var rows = groupedByRow.Select(X => X.Key).OrderBy(x => x);
+        var cols = rows.Select(r => groupedByRow[r].OrderBy(x => x.X).ToArray()).ToArray();    
         return cols;
     }
 
@@ -49,101 +66,57 @@ public static class Day15
         current.GetTop(positions).IfSome(p => neighbours.Add(p));
         current.GetRight(positions).IfSome(p => neighbours.Add(p));
         current.GetBottom(positions).IfSome(p => neighbours.Add(p));
-        current.GetBottom(positions).IfSome(p => neighbours.Add(p));
+        current.GetLeft(positions).IfSome(p => neighbours.Add(p));
         foreach (var n in neighbours)
         {
             yield return n;
         }
     }
 
-    /*
-     * procedure BFS(G, root) is
- 2      let Q be a queue
- 3      label root as explored
- 4      Q.enqueue(root)
- 5      while Q is not empty do
- 6          v := Q.dequeue()
- 7          if v is the goal then
- 8              return v
- 9          for all edges from v to w in G.adjacentEdges(v) do
-10              if w is not labeled as explored then
-11                  label w as explored
-12                  Q.enqueue(w)
-    */
+    static int Heuristic(Position end, Position current) => 
+        end.X - current.X + end.Y - current.Y;
 
-    static int H(Position end, Position current) =>
-        current.Risk * (Math.Abs(current.X - end.X) + Math.Abs(current.Y - end.Y));
-
-
-
-    static Position[] Search(Position[][] positions, Position start, Position end)
+    static int CalcRisk(Position[][] positions, Position start, Position end)
     {
-        var queue = new PriorityQueue<Position, int>();
-        queue.Enqueue(start, 0);
-        var visited = new System.Collections.Generic.HashSet<Position>();
-        
-        var cost = new Dictionary<Position, int>();
+        var queue = new System.Collections.Generic.HashSet<Position>();        
+        var cost = positions.SelectMany(p => p).ToDictionary(p => p, p => int.MaxValue);
+        var score = positions.SelectMany(p => p).ToDictionary(p => p, p => int.MaxValue);
+
+        queue.Add(start);
         cost[start] = 0;
+        score[start] = Heuristic(end, start);
 
-        var cameFrom = new Dictionary<Position, Position>();
-
-        do
+        while (queue.Count > 0)
         {
-            var node = queue.Dequeue();
-
-            if(node == end)
+            var node = queue.OrderBy(q => score[q]).First();                        
+            if (node == end) return cost[end];
+            _ = queue.Remove(node);
+            foreach (var neighbour in positions.GetNeighbours(node).OrderBy(x => x.Risk).AsParallel())
             {
-                return GetPath(start, cameFrom, node);
+                var newCost = cost[node] + neighbour.Risk;
+                int oldCost = cost[neighbour];
+                if (newCost >= oldCost) continue;
+                cost[neighbour] = newCost;
+
+                var new_score = newCost + Heuristic(end, neighbour);
+                score[neighbour] = new_score;
+
+                if (!queue.Contains(neighbour)) queue.Add(neighbour);
             }
-
-            var neighbours = positions.GetNeighbours(node);
-            foreach (var n in neighbours.OrderBy(x => x.Risk))
-            { 
-                if(visited.Contains(n)) continue;
-                
-                if(!cost.ContainsKey(n)) cost[n] = int.MaxValue;
-
-                int nodeCost = cost[node] + n.Risk;
-                bool worthVisiting = nodeCost < cost[n];
-                if (worthVisiting)
-                {
-                    cost[n] = nodeCost;
-                    cameFrom[n] = node;
-                    if(!queue.UnorderedItems.Contains((n, nodeCost)))
-                    {
-                        queue.Enqueue(n, nodeCost);
-                    }
-                }
-            }
-        }
-        while(queue.Count > 0);
-
-        return new Position[] {};
-
-        static Position[] GetPath(Position start, Dictionary<Position, Position> cameFrom, Position current)
-        {
-            var foo = current;
-            var totalPath = new Position[] { foo };
-            do
-            {
-                foo = cameFrom[foo];
-                totalPath = totalPath.Prepend(foo).ToArray();
-            } while (foo != start);
-            return totalPath;
-        }
+        }        
+        return -1;
     }
 
-    public static async Task<object> One()
+    private static async Task<object> Astar(int size)
     {
         var input = await GetInput();
-        var positions = input.ToPositions();
+        var positions = input.ToPositions(size);
         var start = positions.GetStart();
         var end = positions.GetEnd();
-        var lowestRisk = Search(positions, start, end);
-        var stringified = string.Join(" -> ", lowestRisk.Select(x => $"{x.Risk}"));
-        Console.WriteLine(stringified);
-        var currentRisk = lowestRisk.Skip(1).Sum(s => s.Risk);
-        return $"Current risk: {currentRisk}";
+        var lowestRisk = CalcRisk(positions, start, end);
+        return lowestRisk;
     }
-    public static async Task<object> Two() => await Task.Run(() => "Not yet implemented");
+
+    public static async Task<object> One() => await Astar(1);
+    public static async Task<object> Two() => await Astar(5);
 }
