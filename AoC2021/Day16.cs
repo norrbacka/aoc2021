@@ -97,7 +97,7 @@ public static class Day16
             {
                 var subpackage = line.Skip(7).Skip(11).Skip((i)*11).Take(11).Join();
                 packages.Add(subpackage);
-                //packages = GetPackages(subpackage, packages);
+                packages = GetPackages(subpackage, packages);
             }
             return packages;
         }
