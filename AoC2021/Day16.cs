@@ -33,6 +33,8 @@ public static class Day16
     static int ToInt(this string text) => Convert.ToInt32(text, 2);
     static string Join<T>(this IEnumerable<T> array) => string.Join("", array);
     static int ToInt<T>(this IEnumerable<T> array) => array.Join().ToInt();
+    static (string Taken, string Remainder) Fetch(this string text, int toTake) =>
+        (text.Take(toTake).Join(), text.Skip(toTake).Join());
 
     static string Header(this string text) => text.Take(6).Join();
     static int PacketVersion(this string text) => text.Take(3).ToInt();
@@ -40,9 +42,9 @@ public static class Day16
     static int LengthTypeId(this string text) => text.Skip(6).Take(1).ToInt();
 
 
-    static decimal LiteralValue(this string[] text)
+    static decimal LiteralValue(this string text)
     {
-        var data = text.Join().Skip(6).Join();
+        var data = text.Skip(6).Join();
         var groups = data
             .Batch(5)
             .Where(x => x.Count() == 5)
@@ -52,78 +54,88 @@ public static class Day16
         return toDecimal;
     }
 
-
-    static List<string> GetPackages(this string line, List<string> packages)
+    record Package(string Input)
     {
-        var header = line.Header();
-        var packetVersion = header.PacketVersion();
-        var typeId = header.TypeId();
-
-        if(typeId == 4)
+        public int Version => Input.Header().PacketVersion();
+        public int TypeId => Input.Header().TypeId();
+        public bool IsLiteral => TypeId == 4;
+        public bool IsOperator => !IsLiteral;
+        public string GetRemainder()
         {
-            //packages.Add(line.Join());
-            //var body = line.LiteralValue();
-            return packages;
-        }
-
-        var lengthTypeId = line.Join().LengthTypeId();
-        if(lengthTypeId == 0)
-        {
-            var lengthOfSubpackages = line.Skip(7).Take(15).ToInt();
-            var numberOf16Bits = lengthOfSubpackages / 16;
-            var startingPackage = lengthOfSubpackages - (numberOf16Bits*16);
-            var subPackageText = line.Skip(7).Skip(15).Take(lengthOfSubpackages).Join();
-            var takesAndSkips = new List<(int skip, int take)>();
-            if(startingPackage > 0)
-            {
-                takesAndSkips.Add((7+15, startingPackage));
-            }
-            foreach(var i in Enumerable.Range(0, numberOf16Bits))
-            {
-                var last = takesAndSkips.Any() ? takesAndSkips.Last() : (skip: 7+15, take: 0);
-                takesAndSkips.Add((last.skip + last.take, 16));
-            }
-            foreach (var (skip, take) in takesAndSkips)
-            {
-                var package = line.Skip(skip).Take(take).Join();
-                packages.Add(package);
-            }
-            return GetPackages(subPackageText, packages);
-        }
-        else
-        {
-            var numberOfSubPackages = line.Skip(7).Take(11).ToInt();
-            for (int i = 0; i < numberOfSubPackages; i++)
-            {
-                var subpackage = line.Skip(7).Skip(11).Skip((i)*11).Take(11).Join();
-                packages.Add(subpackage);
-                packages = GetPackages(subpackage, packages);
-            }
-            return packages;
+            return string.Empty;
         }
     }
-
-    static int Version(this string package)
+    record Literal : Package
     {
-        var header = package.Header();
-        var packetVersion = header.PacketVersion();
-        return packetVersion;
+        public Literal(string Input) : base(Input)
+        {
+            LiteralValue = Input.LiteralValue();
+        }
+        public decimal LiteralValue { get; }
+    }
+    record Operator : Package
+    {
+        public Operator(string Input) : base(Input)
+        {
+        }
+
+        public int LengthTypeId => Input.LengthTypeId();
+
+        public string Body => Input.Skip(7).Join();
+    }
+
+    static Package Parse(string input)
+    {
+        var p = new Package(input);
+        if (p.IsLiteral)
+        {
+            return new Literal(input);
+        }
+        if(p.IsOperator)
+        {
+            return new Operator(input);
+        }
+        throw new Exception("Neither a literla or operator!");
+    }
+
+
+
+    static IEnumerable<Package> ParseRecur(Package package, IEnumerable<Package> packages)
+    {
+        if (package is Literal l)
+        {
+            packages = MoreEnumerable.Append(packages, tail: l); 
+        }
+        if (package is Operator o)
+        {
+          
+            packages = MoreEnumerable.Append(packages, tail: o);
+            if(o.LengthTypeId == 0)
+            {
+                var length = o.Body.Take(15).ToInt();
+                var bits = o.Body.Skip(15).Join();
+                var subbits = bits.Take(length).Join();
+                bits = bits.Skip(length).Join();
+                while(subbits.Length > 0)
+                {
+                    packages = ParseRecur(Parse(subbits),packages);
+
+                }
+            }
+     
+            
+        }
+        return packages;
     }
 
     public static async Task<object> One()
     {
-        var input = await GetInput();
-        var lines = input.Select(line => line.Select(c => c.HexToBits()).ToArray()).ToArray();
-        var sums = new List<int>();
-        foreach (var line in lines)
-        {
-            var packages = new List<string> { line.Join() };
-            packages = line.Join().GetPackages(packages);
-            var sumOfVersions = packages.Sum(x => x.Version());
-            Console.WriteLine($"{line.Join()} => {sumOfVersions}");
-            sums.Add(sumOfVersions);
-        }
-        return "Total sum: " + sums.Sum();
+        var input = (await GetInput())[0].Select(c => c.HexToBits()).Join();
+        var packages = ParseRecur(Parse(input), new Package[] {});
+        foreach(var p in packages) Console.WriteLine(p.Version);
+        var versionSum = packages.Sum(p => p.Version);
+        return "Total sum: " + versionSum;
     }
+
     public static async Task<object> Two() => await Task.Run(() => "Not yet implemented");
 }
